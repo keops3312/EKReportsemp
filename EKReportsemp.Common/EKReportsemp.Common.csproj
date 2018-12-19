@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Models\CRM_SEMP.cs" />
     <Compile Include="Models\CRM_SEMP_SALDOS.cs" />
     <Compile Include="Models\CRM_SEMP_TOTAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
