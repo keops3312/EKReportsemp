@@ -29,8 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PanelForm));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.styleManager1 = new DevComponents.DotNetBar.StyleManager(this.components);
             this.metroTilePanel1 = new DevComponents.DotNetBar.Metro.MetroTilePanel();
             this.itemContainer1 = new DevComponents.DotNetBar.ItemContainer();
@@ -38,25 +40,30 @@
             this.metroTileItem2 = new DevComponents.DotNetBar.Metro.MetroTileItem();
             this.metroTileItem3 = new DevComponents.DotNetBar.Metro.MetroTileItem();
             this.metroTileItem4 = new DevComponents.DotNetBar.Metro.MetroTileItem();
-            this.line1 = new DevComponents.DotNetBar.Controls.Line();
             this.dataGridViewX1 = new DevComponents.DotNetBar.Controls.DataGridViewX();
+            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Empresa = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.labelX1 = new DevComponents.DotNetBar.LabelX();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.checkSeleccionar = new DevComponents.DotNetBar.Controls.CheckBoxX();
+            this.btnEmpezar = new DevComponents.DotNetBar.ButtonX();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // styleManager1
             // 
+            this.styleManager1.ManagerColorTint = System.Drawing.Color.SteelBlue;
             this.styleManager1.ManagerStyle = DevComponents.DotNetBar.eStyle.Office2007VistaGlass;
             this.styleManager1.MetroColorParameters = new DevComponents.DotNetBar.Metro.ColorTables.MetroColorGeneratorParameters(System.Drawing.Color.White, System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(87)))), ((int)(((byte)(154))))));
             // 
             // metroTilePanel1
             // 
+            this.metroTilePanel1.BackColor = System.Drawing.Color.DimGray;
             // 
             // 
             // 
+            this.metroTilePanel1.BackgroundStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(244)))), ((int)(((byte)(252)))));
             this.metroTilePanel1.BackgroundStyle.Class = "MetroTilePanel";
             this.metroTilePanel1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.metroTilePanel1.ContainerControlProcessDialogKey = true;
@@ -68,6 +75,7 @@
             this.metroTilePanel1.Name = "metroTilePanel1";
             this.metroTilePanel1.ReserveLeftSpace = false;
             this.metroTilePanel1.Size = new System.Drawing.Size(801, 155);
+            this.metroTilePanel1.Style = DevComponents.DotNetBar.eDotNetBarStyle.OfficeXP;
             this.metroTilePanel1.TabIndex = 0;
             this.metroTilePanel1.Text = "metroTilePanel1";
             // 
@@ -93,11 +101,13 @@
             // 
             this.itemContainer1.TitleStyle.Class = "MetroTileGroupTitle";
             this.itemContainer1.TitleStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.itemContainer1.TitleStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.itemContainer1.TitleStyle.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.itemContainer1.TitleText = "Datos del Usuario";
             // 
             // metroTileItem1
             // 
+            this.metroTileItem1.Image = ((System.Drawing.Image)(resources.GetObject("metroTileItem1.Image")));
+            this.metroTileItem1.ImageTextAlignment = System.Drawing.ContentAlignment.TopRight;
             this.metroTileItem1.Name = "metroTileItem1";
             this.metroTileItem1.SymbolColor = System.Drawing.Color.Empty;
             this.metroTileItem1.TileColor = DevComponents.DotNetBar.Metro.eMetroTileColor.Default;
@@ -105,9 +115,12 @@
             // 
             // 
             this.metroTileItem1.TileStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.metroTileItem1.TitleText = "Usuario";
             // 
             // metroTileItem2
             // 
+            this.metroTileItem2.Image = ((System.Drawing.Image)(resources.GetObject("metroTileItem2.Image")));
+            this.metroTileItem2.ImageTextAlignment = System.Drawing.ContentAlignment.TopRight;
             this.metroTileItem2.Name = "metroTileItem2";
             this.metroTileItem2.SymbolColor = System.Drawing.Color.Empty;
             this.metroTileItem2.TileColor = DevComponents.DotNetBar.Metro.eMetroTileColor.Default;
@@ -115,19 +128,26 @@
             // 
             // 
             this.metroTileItem2.TileStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.metroTileItem2.TitleText = "Localidad";
             // 
             // metroTileItem3
             // 
+            this.metroTileItem3.Image = ((System.Drawing.Image)(resources.GetObject("metroTileItem3.Image")));
+            this.metroTileItem3.ImageTextAlignment = System.Drawing.ContentAlignment.TopRight;
             this.metroTileItem3.Name = "metroTileItem3";
+            this.metroTileItem3.NotificationMarkPosition = DevComponents.DotNetBar.eNotificationMarkPosition.TopRight;
             this.metroTileItem3.SymbolColor = System.Drawing.Color.Empty;
             this.metroTileItem3.TileColor = DevComponents.DotNetBar.Metro.eMetroTileColor.Default;
             // 
             // 
             // 
             this.metroTileItem3.TileStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.metroTileItem3.TitleText = "Fecha de Hoy";
             // 
             // metroTileItem4
             // 
+            this.metroTileItem4.Image = ((System.Drawing.Image)(resources.GetObject("metroTileItem4.Image")));
+            this.metroTileItem4.ImageTextAlignment = System.Drawing.ContentAlignment.MiddleCenter;
             this.metroTileItem4.Name = "metroTileItem4";
             this.metroTileItem4.SymbolColor = System.Drawing.Color.Empty;
             this.metroTileItem4.TileColor = DevComponents.DotNetBar.Metro.eMetroTileColor.Default;
@@ -135,35 +155,64 @@
             // 
             // 
             this.metroTileItem4.TileStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            // 
-            // line1
-            // 
-            this.line1.Location = new System.Drawing.Point(9, 177);
-            this.line1.Name = "line1";
-            this.line1.Size = new System.Drawing.Size(786, 23);
-            this.line1.TabIndex = 1;
-            this.line1.Text = "line1";
+            this.metroTileItem4.TitleText = "Regresar";
+            this.metroTileItem4.Click += new System.EventHandler(this.metroTileItem4_Click);
             // 
             // dataGridViewX1
             // 
             this.dataGridViewX1.AllowUserToAddRows = false;
             this.dataGridViewX1.AllowUserToDeleteRows = false;
+            this.dataGridViewX1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewX1.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
+            this.dataGridViewX1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewX1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridViewX1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewX1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Seleccionar});
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
-            this.dataGridViewX1.Location = new System.Drawing.Point(147, 219);
+            this.Seleccionar,
+            this.Empresa});
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle5;
+            this.dataGridViewX1.EnableHeadersVisualStyles = false;
+            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
+            this.dataGridViewX1.Location = new System.Drawing.Point(143, 208);
             this.dataGridViewX1.Name = "dataGridViewX1";
-            this.dataGridViewX1.Size = new System.Drawing.Size(464, 196);
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewX1.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            this.dataGridViewX1.Size = new System.Drawing.Size(511, 196);
             this.dataGridViewX1.TabIndex = 2;
+            // 
+            // Seleccionar
+            // 
+            this.Seleccionar.FillWeight = 200.203F;
+            this.Seleccionar.HeaderText = "Seleccione";
+            this.Seleccionar.MinimumWidth = 85;
+            this.Seleccionar.Name = "Seleccionar";
+            // 
+            // Empresa
+            // 
+            this.Empresa.FillWeight = 379F;
+            this.Empresa.HeaderText = "Empresa";
+            this.Empresa.MinimumWidth = 379;
+            this.Empresa.Name = "Empresa";
             // 
             // labelX1
             // 
@@ -171,8 +220,8 @@
             // 
             // 
             this.labelX1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.labelX1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelX1.Location = new System.Drawing.Point(281, 171);
+            this.labelX1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelX1.Location = new System.Drawing.Point(292, 151);
             this.labelX1.Name = "labelX1";
             this.labelX1.Size = new System.Drawing.Size(213, 29);
             this.labelX1.TabIndex = 3;
@@ -182,30 +231,63 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(518, 164);
+            this.pictureBox1.Location = new System.Drawing.Point(665, 175);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(56, 51);
+            this.pictureBox1.Size = new System.Drawing.Size(113, 101);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 4;
             this.pictureBox1.TabStop = false;
             // 
-            // Seleccionar
+            // checkSeleccionar
             // 
-            this.Seleccionar.HeaderText = "Seleccione";
-            this.Seleccionar.Name = "Seleccionar";
+            // 
+            // 
+            // 
+            this.checkSeleccionar.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.checkSeleccionar.Checked = true;
+            this.checkSeleccionar.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkSeleccionar.CheckValue = "Y";
+            this.checkSeleccionar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkSeleccionar.Location = new System.Drawing.Point(149, 184);
+            this.checkSeleccionar.Name = "checkSeleccionar";
+            this.checkSeleccionar.Size = new System.Drawing.Size(211, 23);
+            this.checkSeleccionar.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
+            this.checkSeleccionar.TabIndex = 5;
+            this.checkSeleccionar.Text = "Marcar ó  Desmarcar todas";
+            this.checkSeleccionar.CheckedChanged += new System.EventHandler(this.checkSeleccionar_CheckedChanged);
+            // 
+            // btnEmpezar
+            // 
+            this.btnEmpezar.AccessibleRole = System.Windows.Forms.AccessibleRole.PushButton;
+            this.btnEmpezar.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
+            this.btnEmpezar.Image = ((System.Drawing.Image)(resources.GetObject("btnEmpezar.Image")));
+            this.btnEmpezar.ImageFixedSize = new System.Drawing.Size(48, 48);
+            this.btnEmpezar.Location = new System.Drawing.Point(675, 360);
+            this.btnEmpezar.Name = "btnEmpezar";
+            this.btnEmpezar.Size = new System.Drawing.Size(68, 58);
+            this.btnEmpezar.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
+            this.btnEmpezar.SymbolColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.btnEmpezar.TabIndex = 6;
+            this.btnEmpezar.Click += new System.EventHandler(this.btnEmpezar_Click);
             // 
             // PanelForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 424);
+            this.ControlBox = false;
+            this.Controls.Add(this.btnEmpezar);
+            this.Controls.Add(this.checkSeleccionar);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.labelX1);
             this.Controls.Add(this.dataGridViewX1);
-            this.Controls.Add(this.line1);
             this.Controls.Add(this.metroTilePanel1);
             this.DoubleBuffered = true;
+            this.EnableGlass = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximumSize = new System.Drawing.Size(816, 463);
+            this.MinimumSize = new System.Drawing.Size(816, 463);
             this.Name = "PanelForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Panel";
@@ -225,10 +307,12 @@
         private DevComponents.DotNetBar.Metro.MetroTileItem metroTileItem2;
         private DevComponents.DotNetBar.Metro.MetroTileItem metroTileItem3;
         private DevComponents.DotNetBar.Metro.MetroTileItem metroTileItem4;
-        private DevComponents.DotNetBar.Controls.Line line1;
         private DevComponents.DotNetBar.Controls.DataGridViewX dataGridViewX1;
         private DevComponents.DotNetBar.LabelX labelX1;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private DevComponents.DotNetBar.Controls.CheckBoxX checkSeleccionar;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Empresa;
+        private DevComponents.DotNetBar.ButtonX btnEmpezar;
     }
 }

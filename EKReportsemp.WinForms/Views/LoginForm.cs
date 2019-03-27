@@ -176,7 +176,16 @@ namespace EKReportsemp.WinForms.Views
 
             if (!string.IsNullOrEmpty(nivel))
             {
+                String[] array = new string[7];
                 panelForm = new PanelForm();
+                array = buscarLocalidad.DatosTitular(txtUser.Text, txtPassword.Text);
+                panelForm.usuario = array[0].ToString();
+                panelForm.nivel = array[1].ToString();
+                panelForm.localidad = array[2].ToString();
+                panelForm.sucursal = array[3].ToString();
+                panelForm.logotipo = array[4].ToString();
+
+             
                 panelForm.Show();
             }
             else {
