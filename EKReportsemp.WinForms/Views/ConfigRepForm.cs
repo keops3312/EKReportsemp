@@ -9,6 +9,7 @@ namespace EKReportsemp.WinForms.Views
     using System.Configuration;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Globalization;
     using System.Windows.Forms;
     using DevComponents.DotNetBar;
     using EKReportsemp.WinForms.Classes; 
@@ -38,6 +39,8 @@ namespace EKReportsemp.WinForms.Views
         private string conn;
         private int unifica;
         private int porSemana;
+        private decimal iva=0;
+        private decimal parte=0;
         DateTime fechaInicio;
         DateTime fechaFinal;
        
@@ -58,6 +61,12 @@ namespace EKReportsemp.WinForms.Views
             CheckForIllegalCrossThreadCalls = false;
             backgroundWorker1.WorkerReportsProgress = true;
             backgroundWorker1.WorkerSupportsCancellation = true;
+
+            labelX5.Visible = false;
+            labelX6.Visible = false;
+            labelX7.Visible = false;
+            txtIva.Visible = false;
+            txtPorcentaje.Visible = false;
 
             empresas = new DataTable();
             empresas.Clear();
@@ -345,6 +354,58 @@ namespace EKReportsemp.WinForms.Views
             }
 
 
+            //Reviso si es Remisiones y veo si hay valores validos
+            if (cmbTipo.Text == "Remisiones")
+            {
+                if (String.IsNullOrEmpty(txtIva.Text) || String.IsNullOrEmpty(txtPorcentaje.Text))
+                {
+                    MessageBoxEx.EnableGlass = false;
+                    MessageBoxEx.Show("Ingrese valor de Iva y Porcentaje de Remision por favor",
+                        "EKReport SEMP",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    txtIva.Focus();
+                    return;
+
+
+                }
+
+                iva = decimal.Parse(txtIva.Text);
+                parte = decimal.Parse(txtPorcentaje.Text);
+
+                if ( iva >= 1 )
+                {
+                    MessageBoxEx.EnableGlass = false;
+                    MessageBoxEx.Show("El valor del Iva debe ser menor a 1 \n " +
+                        "(Por Ejemplo.25,.16,.15) Corrija por favor",
+                        "EKReport SEMP",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    txtIva.Focus();
+                    return;
+
+
+                }
+
+                if (parte > 100)
+                {
+                    MessageBoxEx.EnableGlass = false;
+                    MessageBoxEx.Show("El valor del % de la venta debe ser menor o igual a 100 \n " +
+                        " (Por Ejemplo: 1.0 , 2.5 , 10,20) Corrija por favor",
+                        "EKReport SEMP",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    txtPorcentaje.Focus();
+                    return;
+
+
+                }
+
+
+            }
+
+
+
 
             tipoReporte = cmbTipo.Text;
 
@@ -486,6 +547,45 @@ namespace EKReportsemp.WinForms.Views
             }
 
 
+            if (tipoReporte == "Remisiones")
+            {
+
+                resumen.Clear();
+
+                foreach (DataRow item in cajasSeleccionadas.Rows)
+                {
+                    string caja, database;
+
+
+                    caja = item[1].ToString();
+                    database = item[2].ToString();
+
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
+                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja,iva,parte);
+
+
+                    foreach (DataRow r in resultadoReporte.Rows)
+                    {
+                        
+
+                        resumen.Rows.Add(r[1].ToString(), r[2].ToString(), r[3].ToString()
+                                        , r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString(), r[12].ToString());
+                    }
+
+
+
+
+                }
+
+
+
+            }
+
+
+
 
 
 
@@ -504,15 +604,64 @@ namespace EKReportsemp.WinForms.Views
             circularProgress1.Visible = false;
             btnReporte.Enabled = true;
 
+            dataGridViewX1.DataSource = resumen;
+
 
             MessageBoxEx.EnableGlass = false;
             MessageBoxEx.Show("Ejercicio Realizado","EK Report SEMP", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            dataGridViewX1.DataSource = resumen;
+           
            
 
           
 
+        }
+
+        private void cmbTipo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            valoresRemision();
+        }
+
+        private void valoresRemision()
+        {
+            if (cmbTipo.Text == "Remisiones")
+            {
+                labelX5.Visible = true;
+                labelX6.Visible = true;
+                labelX7.Visible =true;
+                txtIva.Visible = true;
+                txtPorcentaje.Visible = true;
+            }
+            else {
+                labelX7.Visible = false;
+                labelX5.Visible = false;
+                labelX6.Visible = false;
+                txtIva.Visible = false;
+                txtPorcentaje.Visible =false;
+
+            }
+        }
+
+        private void txtIva_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            CultureInfo cc = System.Threading.Thread.CurrentThread.CurrentCulture;
+
+            if (char.IsNumber(e.KeyChar) ||
+                      e.KeyChar.ToString() == cc.NumberFormat.NumberDecimalSeparator)
+                e.Handled = false;
+            else
+                e.Handled = true;
+        }
+
+        private void txtPorcentaje_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            CultureInfo cc = System.Threading.Thread.CurrentThread.CurrentCulture;
+
+            if (char.IsNumber(e.KeyChar) ||
+                      e.KeyChar.ToString() == cc.NumberFormat.NumberDecimalSeparator)
+                e.Handled = false;
+            else
+                e.Handled = true;
         }
     }
 }
