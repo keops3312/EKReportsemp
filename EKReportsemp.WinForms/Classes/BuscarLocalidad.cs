@@ -152,6 +152,7 @@ namespace EKReportsemp.WinForms.Classes
             DataTable result = new DataTable();
             result.Columns.Add();
             result.Columns.Add();
+            result.Clear();
 
            
             foreach  (DataRow empresa in empresas.Rows)

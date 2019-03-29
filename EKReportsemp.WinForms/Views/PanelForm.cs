@@ -43,26 +43,23 @@ namespace EKReportsemp.WinForms.Views
         {
             //Comenzar a segunda ventana
             //enviamos un datatable con las empresas Seleccionadas
-
             DataTable result = new DataTable();
             result.Columns.Add();
-            foreach (DataGridViewRow r in dataGridViewX1.Rows)
+            result.Clear();
+
+            foreach (DataGridViewRow row in dataGridViewX1.Rows)
             {
-                bool sel = Convert.ToBoolean(r.Cells[0].Value);
-                if (sel == true)
+                Boolean bol = Convert.ToBoolean(row.Cells[0].Value);
+                if (bol == true)
                 {
-                    result.Rows.Add(r.Cells[1].Value.ToString());
+                    result.Rows.Add(row.Cells[1].Value.ToString());
                 }
-
-
-
+                    
             }
-
+            
             ConfigRepForm configRepForm = new ConfigRepForm(result);
             configRepForm.Show();
-
-
-
+            
         }
 
         private void checkSeleccionar_CheckedChanged(object sender, EventArgs e)

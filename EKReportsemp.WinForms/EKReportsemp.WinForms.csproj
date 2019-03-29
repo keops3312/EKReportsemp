@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Classes\BuscarLocalidad.cs" />
     <Compile Include="Classes\LocationConexion.cs" />
+    <Compile Include="Classes\ResultadosOperacion.cs" />
     <Compile Include="ConnectionTools.cs" />
     <Compile Include="Context\abono.cs">
       <DependentUpon>Context.tt</DependentUpon>
