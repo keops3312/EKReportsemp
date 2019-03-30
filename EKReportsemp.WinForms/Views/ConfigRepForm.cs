@@ -76,11 +76,16 @@ namespace EKReportsemp.WinForms.Views
             resultMisCajas.Columns.Add();
             resultMisCajas.Columns.Add();
             resultMisCajas.Columns.Add();
+            resultMisCajas.Columns.Add();
+            resultMisCajas.Columns.Add();
+
 
             cajasSeleccionadas = new DataTable();
             cajasSeleccionadas.Columns.Add("Caja");
             cajasSeleccionadas.Columns.Add("NumCaja");
             cajasSeleccionadas.Columns.Add("BD");
+            cajasSeleccionadas.Columns.Add("Empresa");
+            cajasSeleccionadas.Columns.Add("Localidad");
 
             resumen = new DataTable();
             resumen.Columns.Add();
@@ -91,6 +96,14 @@ namespace EKReportsemp.WinForms.Views
             resumen.Columns.Add();
             resumen.Columns.Add();
             resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+            resumen.Columns.Add();
+
 
         }
         #endregion
@@ -115,7 +128,7 @@ namespace EKReportsemp.WinForms.Views
 
             foreach (DataRow item in listaEmpresas.Rows)
             {
-                localidadesGrid.Rows.Add(true, item[0].ToString(), item[1].ToString());
+                localidadesGrid.Rows.Add(true, item[0].ToString(), item[1].ToString(), item[2].ToString());
 
             }
 
@@ -128,14 +141,15 @@ namespace EKReportsemp.WinForms.Views
             {
                 
                 string x = item[1].ToString();
-
-                BuscarCajas(x);
+                string y = item[2].ToString();
+                BuscarCajas(x,y);
 
             }
+
             cajasGrid.Rows.Clear();
             foreach (DataRow item in resultMisCajas.Rows)
             {
-                cajasGrid.Rows.Add(true,item[0].ToString(), item[1].ToString(), item[2].ToString());
+                cajasGrid.Rows.Add(true,item[0].ToString(), item[1].ToString(), item[2].ToString(), item[3].ToString(), item[4].ToString());
             }
            
 
@@ -148,9 +162,8 @@ namespace EKReportsemp.WinForms.Views
 
 
         }
-
-
-        public DataTable BuscarCajas(string BaseDatos)//
+        
+        private DataTable BuscarCajas(string BaseDatos,string Empresa)//
         {
            
 
@@ -166,16 +179,23 @@ namespace EKReportsemp.WinForms.Views
             cajasSeleccionadas.Clear();
             foreach (DataRow item in resultado.Rows)
             {
-                resultMisCajas.Rows.Add(item[0].ToString(), item[1].ToString(), BaseDatos);
-                cajasSeleccionadas.Rows.Add(item[0].ToString(), item[1].ToString(), BaseDatos);
+
+                SqlDataAdapter cmd1 = new SqlDataAdapter(" USE " + BaseDatos + " " +
+              " SELECT [Nombre Sucursal] " +
+              " from localidades where impresora='RAIZ'", cn);
+                DataTable resultado1 = new DataTable();
+                resultado1.Clear();
+                cmd1.Fill(resultado1);
+                
+
+                resultMisCajas.Rows.Add(item[0].ToString(), item[1].ToString(), BaseDatos,Empresa,resultado1.Rows[0][0].ToString());
+                cajasSeleccionadas.Rows.Add(item[0].ToString(), item[1].ToString(), BaseDatos,Empresa, resultado1.Rows[0][0].ToString());
             }
 
 
             return resultMisCajas;
 
         }
-
-
 
         private void CargarEliminarCajas()
         {
@@ -214,8 +234,8 @@ namespace EKReportsemp.WinForms.Views
 
                             if (a.Trim() == b.Trim())
                             {
-                                cajasGrid.Rows.Add(true, res[0].ToString(), res[1].ToString(), res[2].ToString());
-                                cajasSeleccionadas.Rows.Add(res[0].ToString(), res[1].ToString(), res[2].ToString());
+                                cajasGrid.Rows.Add(true, res[0].ToString(), res[1].ToString(), res[2].ToString(), res[3].ToString(), res[4].ToString());
+                                cajasSeleccionadas.Rows.Add(res[0].ToString(), res[1].ToString(), res[2].ToString(), res[3].ToString(),res[4].ToString());
                             }
 
                             
@@ -239,9 +259,192 @@ namespace EKReportsemp.WinForms.Views
 
         }
 
-        
-        #endregion
+        private void valoresRemision()
+        {
+            if (cmbTipo.Text == "Remisiones")
+            {
+                labelX5.Visible = true;
+                labelX6.Visible = true;
+                labelX7.Visible = true;
+                txtIva.Visible = true;
+                txtPorcentaje.Visible = true;
+            }
+            else
+            {
+                labelX7.Visible = false;
+                labelX5.Visible = false;
+                labelX6.Visible = false;
+                txtIva.Visible = false;
+                txtPorcentaje.Visible = false;
 
+            }
+        }
+
+        private void BeginReport()
+        {
+
+
+            if (tipoReporte == "Prestamos")
+            {
+
+                resumen.Clear();
+
+                foreach (DataRow item in cajasSeleccionadas.Rows)
+                {
+                    string caja, database,emp, bd, localidad,cajaletra;
+
+                    caja = item[0].ToString();//TLX11
+                    cajaletra = item[1].ToString();//CIS-TLX1-1
+                    database = item[2].ToString();
+                    bd = item[2].ToString();//SEMP2013_TLXX
+                    emp = item[3].ToString();//Monte Ros
+                    localidad = item[4].ToString();//Tula monte ros
+                 
+                    
+                   
+                   
+
+
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, database, 1,
+                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja,emp,localidad,cajaletra);
+
+
+                    foreach (DataRow r in resultadoReporte.Rows)
+                    {
+                        resumen.Rows.Add(r[0].ToString(),  r[1].ToString(), r[2].ToString()
+                                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), 
+                                        r[6].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString());
+
+
+
+                    }
+
+
+
+
+                }
+
+
+
+            }
+
+
+
+            if (tipoReporte == "Notas de Pago")
+            {
+
+                resumen.Clear();
+
+                foreach (DataRow item in cajasSeleccionadas.Rows)
+                {
+
+                    string caja, database, emp, bd, localidad, cajaletra;
+                    caja = item[0].ToString();//TLX11
+                    cajaletra = item[1].ToString();//CIS-TLX1-1
+                    database = item[2].ToString();
+                    bd = item[2].ToString();//SEMP2013_TLXX
+                    emp = item[3].ToString();//Monte Ros
+                    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    resultadoReporte.Clear();
+                    
+                    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1,2018,database,1,fechaInicio,fechaFinal,
+                        conn,unifica,porSemana,caja,emp,localidad, cajaletra);
+
+
+                    foreach (DataRow r in resultadoReporte.Rows)
+                    {
+                      
+
+                        resumen.Rows.Add(r[0].ToString(), r[1].ToString(), r[2].ToString()
+                                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString()
+                                        , r[8].ToString(), r[9].ToString(), r[10].ToString(), r[11].ToString());
+                    }
+
+
+
+
+                }
+
+
+
+            }
+
+
+            if (tipoReporte == "Remisiones")
+            {
+
+                resumen.Clear();
+
+                foreach (DataRow item in cajasSeleccionadas.Rows)
+                {
+
+                    string caja, database, emp, bd, localidad, cajaletra;
+                    caja = item[0].ToString();//TLX11
+                    cajaletra = item[1].ToString();//CIS-TLX1-1
+                    database = item[2].ToString();
+                    bd = item[2].ToString();//SEMP2013_TLXX
+                    emp = item[3].ToString();//Monte Ros
+                    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    resultadoReporte.Clear();
+
+                  
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
+                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
+
+
+                    foreach (DataRow r in resultadoReporte.Rows)
+                    {
+                       
+
+                       
+
+                        resumen.Rows.Add(r[0].ToString(),
+                            r[1].ToString(),
+                            r[2].ToString(),
+                            r[3].ToString(),
+                            r[4].ToString(),
+                            r[5].ToString(),
+                            r[6].ToString(),
+                            r[7].ToString(),
+                            r[8].ToString(),
+                            decimal.Parse(r[9].ToString()).ToString("N2"),
+                            decimal.Parse(r[10].ToString()).ToString("N2"),
+                            decimal.Parse(r[11].ToString()).ToString("N2"),
+                            decimal.Parse(r[12].ToString()).ToString("N2"),
+                            decimal.Parse(r[13].ToString()).ToString("N2"),
+                            decimal.Parse(r[14].ToString()).ToString("N2")
+                            );
+                    }
+
+
+
+
+                }
+
+
+
+            }
+
+
+
+
+
+
+
+        }
+
+        #endregion
 
         #region Events (Eventos)
         private void ConfigRepForm_Load(object sender, EventArgs e)
@@ -300,8 +503,6 @@ namespace EKReportsemp.WinForms.Views
             CargarEliminarCajas();
         }
 
-        #endregion
-
         private void btnReporte_Click(object sender, EventArgs e)
         {
             if (String.IsNullOrEmpty(cmbTipo.Text))
@@ -318,7 +519,7 @@ namespace EKReportsemp.WinForms.Views
             }
             //cuantas cajas hemos seleecionado
             int y = 0;
-            foreach  (DataGridViewRow item in cajasGrid.Rows)
+            foreach (DataGridViewRow item in cajasGrid.Rows)
             {
                 Boolean z = Convert.ToBoolean(item.Cells[0].Value);
                 if (z == true)
@@ -327,7 +528,7 @@ namespace EKReportsemp.WinForms.Views
                 }
 
             }
-            if (y==0)
+            if (y == 0)
             {
                 MessageBoxEx.EnableGlass = false;
                 MessageBoxEx.Show("Seleccione por lo menos una caja por favor",
@@ -342,7 +543,7 @@ namespace EKReportsemp.WinForms.Views
 
             //Comprobar si escogieron un rango de fechas coherente
 
-            if(dateTimeInput1.Value > dateTimeInput2.Value)
+            if (dateTimeInput1.Value > dateTimeInput2.Value)
             {
                 MessageBoxEx.EnableGlass = false;
                 MessageBoxEx.Show("El rango de fechas no es coherente verifique por favor",
@@ -373,7 +574,7 @@ namespace EKReportsemp.WinForms.Views
                 iva = decimal.Parse(txtIva.Text);
                 parte = decimal.Parse(txtPorcentaje.Text);
 
-                if ( iva >= 1 )
+                if (iva >= 1)
                 {
                     MessageBoxEx.EnableGlass = false;
                     MessageBoxEx.Show("El valor del Iva debe ser menor a 1 \n " +
@@ -409,8 +610,8 @@ namespace EKReportsemp.WinForms.Views
 
             tipoReporte = cmbTipo.Text;
 
-            unifica = (checkUnificar.Checked == true)? 1 : 2;
-            porSemana= (checkRangosSemana.Checked == true) ? 1 : 2;
+            unifica = (checkUnificar.Checked == true) ? 1 : 2;
+            porSemana = (checkRangosSemana.Checked == true) ? 1 : 2;
 
 
             fechaInicio = dateTimeInput1.Value;
@@ -420,7 +621,7 @@ namespace EKReportsemp.WinForms.Views
             circularProgress1.Visible = true;
             btnReporte.Enabled = false;
             //RECORREMOS LA CAJAS Y VEMOS CUALES ESTAN SELECCIONADAS
-            string seleccionadaBD="";
+            string seleccionadaBD = "";
             cajasSeleccionadas.Clear();
             foreach (DataGridViewRow r in cajasGrid.Rows)
             {
@@ -431,215 +632,41 @@ namespace EKReportsemp.WinForms.Views
                 {
 
 
-                  
-                        if (unifica == 1)
+
+                    if (unifica == 1)
+                    {
+
+                        if (seleccionadaBD != bd)
                         {
-
-                            if(seleccionadaBD != bd)
-                            {
-                                 cajasSeleccionadas.Rows.Add(r.Cells[1].Value.ToString(), r.Cells[2].Value.ToString(), r.Cells[3].Value.ToString());
-                            }
-
-                            seleccionadaBD = bd;
-                             
-
-                              
-                        }
-                        else
-                        {
-                            cajasSeleccionadas.Rows.Add(r.Cells[1].Value.ToString(), r.Cells[2].Value.ToString(), r.Cells[3].Value.ToString());
+                            cajasSeleccionadas.Rows.Add(r.Cells[1].Value.ToString(), r.Cells[2].Value.ToString(),
+                                r.Cells[3].Value.ToString(), r.Cells[4].Value.ToString(), r.Cells[5].Value.ToString());
                         }
 
-                  
-   
+                        seleccionadaBD = bd;
+
+
+
+                    }
+                    else
+                    {
+                        cajasSeleccionadas.Rows.Add(r.Cells[1].Value.ToString(), r.Cells[2].Value.ToString(),
+                            r.Cells[3].Value.ToString(), r.Cells[4].Value.ToString(), r.Cells[5].Value.ToString());
+                    }
+
+
+
 
                 }
             }
 
-         
+
             backgroundWorker1.RunWorkerAsync();
 
 
         }
-
-        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            BeginReport();
-        }
-
-        private void BeginReport()
-        {
-          
-
-            if (tipoReporte == "Prestamos")
-            {
-
-                resumen.Clear();
-
-                foreach (DataRow item in cajasSeleccionadas.Rows)
-                {
-                    string caja, database;
-                   
-                   
-                    caja = item[1].ToString();
-                    database = item[2].ToString();
-
-                  
-
-                    resultadoReporte.Clear();
-                   
-                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, database, 1,
-                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja);
-
-                  
-                        foreach (DataRow r in resultadoReporte.Rows)
-                        {
-                            resumen.Rows.Add(r[0].ToString(), r[1].ToString(), r[2].ToString()
-                                            , r[3].ToString(), r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString());
-                        }
-                    
-                   
-
-
-                }
-
-
-
-            }
-
-
-
-            if (tipoReporte == "Notas de Pago")
-            {
-
-                resumen.Clear();
-
-                foreach (DataRow item in cajasSeleccionadas.Rows)
-                {
-                    string caja, database;
-
-
-                    caja = item[1].ToString();
-                    database = item[2].ToString();
-
-
-
-                    resultadoReporte.Clear();
-
-                    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1, 2018, database, 1,
-                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja);
-
-
-                    foreach (DataRow r in resultadoReporte.Rows)
-                    {
-
-                        resumen.Rows.Add(r[3].ToString(), r[4].ToString(), r[5].ToString()
-                                        , r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString(), r[12].ToString());
-                    }
-
-
-
-
-                }
-
-
-
-            }
-
-
-            if (tipoReporte == "Remisiones")
-            {
-
-                resumen.Clear();
-
-                foreach (DataRow item in cajasSeleccionadas.Rows)
-                {
-                    string caja, database;
-
-
-                    caja = item[1].ToString();
-                    database = item[2].ToString();
-
-
-                    resultadoReporte.Clear();
-
-                    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
-                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja,iva,parte);
-
-
-                    foreach (DataRow r in resultadoReporte.Rows)
-                    {
-                        
-
-                        resumen.Rows.Add(r[1].ToString(), r[2].ToString(), r[3].ToString()
-                                        , r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString(), r[12].ToString());
-                    }
-
-
-
-
-                }
-
-
-
-            }
-
-
-
-
-
-
-
-        }
-
-        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
-        {
-            circularProgress1.Value = e.ProgressPercentage;
-        }
-
-        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
-        {
-
-            circularProgress1.IsRunning = false;
-            circularProgress1.Visible = false;
-            btnReporte.Enabled = true;
-
-            dataGridViewX1.DataSource = resumen;
-
-
-            MessageBoxEx.EnableGlass = false;
-            MessageBoxEx.Show("Ejercicio Realizado","EK Report SEMP", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-           
-           
-
-          
-
-        }
-
         private void cmbTipo_SelectedIndexChanged(object sender, EventArgs e)
         {
             valoresRemision();
-        }
-
-        private void valoresRemision()
-        {
-            if (cmbTipo.Text == "Remisiones")
-            {
-                labelX5.Visible = true;
-                labelX6.Visible = true;
-                labelX7.Visible =true;
-                txtIva.Visible = true;
-                txtPorcentaje.Visible = true;
-            }
-            else {
-                labelX7.Visible = false;
-                labelX5.Visible = false;
-                labelX6.Visible = false;
-                txtIva.Visible = false;
-                txtPorcentaje.Visible =false;
-
-            }
         }
 
         private void txtIva_KeyPress(object sender, KeyPressEventArgs e)
@@ -663,5 +690,50 @@ namespace EKReportsemp.WinForms.Views
             else
                 e.Handled = true;
         }
+
+        #endregion
+
+        #region BackGroundWorkers (Hilos)
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BeginReport();
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            circularProgress1.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+
+            circularProgress1.IsRunning = false;
+            circularProgress1.Visible = false;
+            btnReporte.Enabled = true;
+
+            dataGridViewX1.DataSource = resumen;
+
+
+            MessageBoxEx.EnableGlass = false;
+            MessageBoxEx.Show("Ejercicio Realizado", "EK Report SEMP", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
+            diseñoDeResultado(resumen);
+
+
+
+        }
+
+        private void diseñoDeResultado(DataTable resumen)
+        {
+           
+            dataGridViewX1.DataSource = resultadosOperacion.diseñoDeResultado(resumen, fechaInicio, fechaFinal);
+
+        }
+        #endregion
+
+
+
+
     }
 }

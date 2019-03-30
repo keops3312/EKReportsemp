@@ -152,6 +152,7 @@ namespace EKReportsemp.WinForms.Classes
             DataTable result = new DataTable();
             result.Columns.Add();
             result.Columns.Add();
+            result.Columns.Add();
             result.Clear();
 
            
@@ -163,7 +164,7 @@ namespace EKReportsemp.WinForms.Classes
 
                 foreach (var item in sucursales)
                 {
-                    result.Rows.Add(item.Nombre_Sucursal, item.BD);
+                    result.Rows.Add(item.Nombre_Sucursal, item.BD, item.Empresa);
                 }
                
                 

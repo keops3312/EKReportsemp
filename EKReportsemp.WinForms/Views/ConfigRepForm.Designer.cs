@@ -34,23 +34,16 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigRepForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigRepForm));
             this.cmbTipo = new DevComponents.DotNetBar.Controls.ComboBoxEx();
             this.labelX1 = new DevComponents.DotNetBar.LabelX();
             this.localidadesGrid = new DevComponents.DotNetBar.Controls.DataGridViewX();
-            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Sucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BD = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.labelX2 = new DevComponents.DotNetBar.LabelX();
             this.labelX3 = new DevComponents.DotNetBar.LabelX();
             this.cajasGrid = new DevComponents.DotNetBar.Controls.DataGridViewX();
-            this.Seleccionar2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Caja = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Base = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dateTimeInput1 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
             this.checkRangosSemana = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.dateTimeInput2 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
@@ -60,7 +53,6 @@
             this.checkUnificar = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.btnReporte = new DevComponents.DotNetBar.ButtonX();
             this.btnCargar = new DevComponents.DotNetBar.ButtonX();
-            this.dataGridViewX1 = new DevComponents.DotNetBar.Controls.DataGridViewX();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
@@ -72,15 +64,26 @@
             this.labelX5 = new DevComponents.DotNetBar.LabelX();
             this.labelX6 = new DevComponents.DotNetBar.LabelX();
             this.labelX7 = new DevComponents.DotNetBar.LabelX();
+            this.dataGridViewX1 = new DevComponents.DotNetBar.Controls.DataGridViewX();
+            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Sucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BD = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Empresa = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Seleccionar2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Caja = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Base = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Emp = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Localidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.localidadesGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cajasGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dateTimeInput1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dateTimeInput2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).BeginInit();
             this.SuspendLayout();
             // 
             // cmbTipo
@@ -126,7 +129,8 @@
             this.localidadesGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Seleccionar,
             this.Sucursal,
-            this.BD});
+            this.BD,
+            this.Empresa});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -136,7 +140,7 @@
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.localidadesGrid.DefaultCellStyle = dataGridViewCellStyle2;
             this.localidadesGrid.EnableHeadersVisualStyles = false;
-            this.localidadesGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
+            this.localidadesGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
             this.localidadesGrid.Location = new System.Drawing.Point(12, 160);
             this.localidadesGrid.Name = "localidadesGrid";
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -149,27 +153,6 @@
             this.localidadesGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.localidadesGrid.Size = new System.Drawing.Size(325, 177);
             this.localidadesGrid.TabIndex = 2;
-            // 
-            // Seleccionar
-            // 
-            this.Seleccionar.FillWeight = 66F;
-            this.Seleccionar.HeaderText = "Seleccione";
-            this.Seleccionar.MinimumWidth = 66;
-            this.Seleccionar.Name = "Seleccionar";
-            // 
-            // Sucursal
-            // 
-            this.Sucursal.FillWeight = 200F;
-            this.Sucursal.HeaderText = "Sucursal";
-            this.Sucursal.MinimumWidth = 200;
-            this.Sucursal.Name = "Sucursal";
-            // 
-            // BD
-            // 
-            this.BD.FillWeight = 5F;
-            this.BD.HeaderText = "BD";
-            this.BD.Name = "BD";
-            this.BD.Visible = false;
             // 
             // labelX2
             // 
@@ -212,7 +195,9 @@
             this.Seleccionar2,
             this.Caja,
             this.nom,
-            this.Base});
+            this.Base,
+            this.Emp,
+            this.Localidad});
             dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -222,7 +207,7 @@
             dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.cajasGrid.DefaultCellStyle = dataGridViewCellStyle5;
             this.cajasGrid.EnableHeadersVisualStyles = false;
-            this.cajasGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
+            this.cajasGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
             this.cajasGrid.Location = new System.Drawing.Point(401, 160);
             this.cajasGrid.Name = "cajasGrid";
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -235,34 +220,6 @@
             this.cajasGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.cajasGrid.Size = new System.Drawing.Size(264, 177);
             this.cajasGrid.TabIndex = 5;
-            // 
-            // Seleccionar2
-            // 
-            this.Seleccionar2.FillWeight = 66F;
-            this.Seleccionar2.HeaderText = "Seleccione";
-            this.Seleccionar2.MinimumWidth = 66;
-            this.Seleccionar2.Name = "Seleccionar2";
-            this.Seleccionar2.Width = 66;
-            // 
-            // Caja
-            // 
-            this.Caja.FillWeight = 155F;
-            this.Caja.HeaderText = "Caja";
-            this.Caja.MinimumWidth = 155;
-            this.Caja.Name = "Caja";
-            this.Caja.Width = 155;
-            // 
-            // nom
-            // 
-            this.nom.HeaderText = "nom";
-            this.nom.Name = "nom";
-            this.nom.Visible = false;
-            // 
-            // Base
-            // 
-            this.Base.HeaderText = "Base";
-            this.Base.Name = "Base";
-            this.Base.Visible = false;
             // 
             // dateTimeInput1
             // 
@@ -450,40 +407,6 @@
             this.btnCargar.TabIndex = 19;
             this.btnCargar.Click += new System.EventHandler(this.btnCargar_Click);
             // 
-            // dataGridViewX1
-            // 
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewX1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
-            this.dataGridViewX1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle8;
-            this.dataGridViewX1.EnableHeadersVisualStyles = false;
-            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
-            this.dataGridViewX1.Location = new System.Drawing.Point(12, 343);
-            this.dataGridViewX1.Name = "dataGridViewX1";
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewX1.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
-            this.dataGridViewX1.Size = new System.Drawing.Size(653, 175);
-            this.dataGridViewX1.TabIndex = 20;
-            // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
@@ -618,11 +541,113 @@
             this.labelX7.TabIndex = 30;
             this.labelX7.Text = "Ingrese el valor del Iva y el % a tomar del total de las ventas";
             // 
+            // dataGridViewX1
+            // 
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewX1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+            this.dataGridViewX1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle8;
+            this.dataGridViewX1.EnableHeadersVisualStyles = false;
+            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
+            this.dataGridViewX1.Location = new System.Drawing.Point(12, 343);
+            this.dataGridViewX1.Name = "dataGridViewX1";
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridViewX1.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            this.dataGridViewX1.Size = new System.Drawing.Size(653, 150);
+            this.dataGridViewX1.TabIndex = 31;
+            // 
+            // Seleccionar
+            // 
+            this.Seleccionar.FillWeight = 66F;
+            this.Seleccionar.HeaderText = "Seleccione";
+            this.Seleccionar.MinimumWidth = 66;
+            this.Seleccionar.Name = "Seleccionar";
+            // 
+            // Sucursal
+            // 
+            this.Sucursal.FillWeight = 200F;
+            this.Sucursal.HeaderText = "Sucursal";
+            this.Sucursal.MinimumWidth = 200;
+            this.Sucursal.Name = "Sucursal";
+            // 
+            // BD
+            // 
+            this.BD.FillWeight = 5F;
+            this.BD.HeaderText = "BD";
+            this.BD.Name = "BD";
+            this.BD.Visible = false;
+            // 
+            // Empresa
+            // 
+            this.Empresa.HeaderText = "Empresa";
+            this.Empresa.Name = "Empresa";
+            this.Empresa.Visible = false;
+            // 
+            // Seleccionar2
+            // 
+            this.Seleccionar2.FillWeight = 66F;
+            this.Seleccionar2.HeaderText = "Seleccione";
+            this.Seleccionar2.MinimumWidth = 66;
+            this.Seleccionar2.Name = "Seleccionar2";
+            this.Seleccionar2.Width = 66;
+            // 
+            // Caja
+            // 
+            this.Caja.FillWeight = 155F;
+            this.Caja.HeaderText = "Caja";
+            this.Caja.MinimumWidth = 155;
+            this.Caja.Name = "Caja";
+            this.Caja.Width = 155;
+            // 
+            // nom
+            // 
+            this.nom.HeaderText = "nom";
+            this.nom.Name = "nom";
+            this.nom.Visible = false;
+            // 
+            // Base
+            // 
+            this.Base.HeaderText = "Base";
+            this.Base.Name = "Base";
+            this.Base.Visible = false;
+            // 
+            // Emp
+            // 
+            this.Emp.HeaderText = "Emp";
+            this.Emp.Name = "Emp";
+            this.Emp.Visible = false;
+            // 
+            // Localidad
+            // 
+            this.Localidad.HeaderText = "Localidad";
+            this.Localidad.Name = "Localidad";
+            this.Localidad.Visible = false;
+            // 
             // ConfigRepForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(993, 451);
+            this.ClientSize = new System.Drawing.Size(993, 434);
+            this.Controls.Add(this.dataGridViewX1);
             this.Controls.Add(this.labelX7);
             this.Controls.Add(this.labelX6);
             this.Controls.Add(this.labelX5);
@@ -633,7 +658,6 @@
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.dataGridViewX1);
             this.Controls.Add(this.btnCargar);
             this.Controls.Add(this.btnReporte);
             this.Controls.Add(this.checkUnificar);
@@ -660,11 +684,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.cajasGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dateTimeInput1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dateTimeInput2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -684,16 +708,8 @@
         private DevComponents.DotNetBar.Controls.CheckBoxX checkCajas;
         private DevComponents.DotNetBar.Controls.CheckBoxX checkLocalidades;
         private DevComponents.DotNetBar.Controls.CheckBoxX checkUnificar;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Sucursal;
-        private System.Windows.Forms.DataGridViewTextBoxColumn BD;
         private DevComponents.DotNetBar.ButtonX btnReporte;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Caja;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nom;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Base;
         private DevComponents.DotNetBar.ButtonX btnCargar;
-        private DevComponents.DotNetBar.Controls.DataGridViewX dataGridViewX1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox3;
@@ -705,5 +721,16 @@
         private DevComponents.DotNetBar.LabelX labelX5;
         private DevComponents.DotNetBar.LabelX labelX6;
         private DevComponents.DotNetBar.LabelX labelX7;
+        private DevComponents.DotNetBar.Controls.DataGridViewX dataGridViewX1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Sucursal;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Empresa;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Caja;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Base;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Emp;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Localidad;
     }
 }

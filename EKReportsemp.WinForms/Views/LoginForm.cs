@@ -186,7 +186,7 @@ namespace EKReportsemp.WinForms.Views
                 panelForm.logotipo = array[4].ToString();
 
              
-                panelForm.Show();
+                panelForm.ShowDialog();
             }
             else {
 

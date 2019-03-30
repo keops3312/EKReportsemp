@@ -24,7 +24,6 @@ namespace EKReportsemp.WinForms.Classes
         SqlDataAdapter sqlDataAdapter;
         #endregion
 
-
         #region Atributes (Atributos)
         public string serv;
         public string bd;
@@ -179,7 +178,8 @@ namespace EKReportsemp.WinForms.Classes
         //Crea un DataTable de la suma de las operaciones totales de prestamos de cajas por dia PRESTAMOS
         public DataTable PrestamosXdiaResumen(int month, int year,
             string database, int opc, DateTime fechaInicio,
-            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja)//unifica 1=si 2=no--- rangoSemana 1=si 2=no
+            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, 
+            string caja,string emp, string loc,string cajaNom)//unifica 1=si 2=no--- rangoSemana 1=si 2=no
         {
 
             string sql;
@@ -190,16 +190,19 @@ namespace EKReportsemp.WinForms.Classes
 
 
             DateTime inicio;
-            resultCajas = new DataTable();
+            resultCajas = new DataTable();      
+
             resultPrestamosPorCaja = new DataTable("Prestamos");
-            resultPrestamosPorCaja.Columns.Add("Contrato");
-            resultPrestamosPorCaja.Columns.Add("Prestamo");
             resultPrestamosPorCaja.Columns.Add("Fecha");
-            resultPrestamosPorCaja.Columns.Add("Caja");
-            resultPrestamosPorCaja.Columns.Add("CajaLetra");
+            resultPrestamosPorCaja.Columns.Add("Localidad");
+            resultPrestamosPorCaja.Columns.Add("NomSuc");
+            resultPrestamosPorCaja.Columns.Add("BD");
             resultPrestamosPorCaja.Columns.Add("Mes");
             resultPrestamosPorCaja.Columns.Add("Ano");
-            resultPrestamosPorCaja.Columns.Add("Suc");
+            resultPrestamosPorCaja.Columns.Add("Caja");
+            resultPrestamosPorCaja.Columns.Add("CajaNom");
+            resultPrestamosPorCaja.Columns.Add("Empresa");
+            resultPrestamosPorCaja.Columns.Add("Prestamo");
 
 
           
@@ -236,9 +239,21 @@ namespace EKReportsemp.WinForms.Classes
                         //año
                         //caja
 
-                        resultPrestamosPorCaja.Rows.Add(1, prestamo, fecha, caja, caja, month, year, database.Substring(9));
+                      
+
+                        resultPrestamosPorCaja.Rows.Add(fecha,loc, database.Substring(9),
+                                                    database,fecha.Month.ToString(),fecha.Year.ToString(),
+                                                      caja,cajaNom,emp,prestamo);
 
 
+                    }
+                    else {
+
+                        resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                   database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                     caja, cajaNom, emp, 0);
+
+                       
                     }
 
 
@@ -259,11 +274,11 @@ namespace EKReportsemp.WinForms.Classes
 
                     sql = "USE " + database + "  " +
                      "SELECT  sum(contratos.prestamo) as Prestamo," +
-                     " contratos.fechacons as Fecha, " + caja + ".Caja as Caja FROM  contratos INNER JOIN " + caja + " " +
-                         " ON contratos.contrato = " + caja + ".contrato  " +
+                     " contratos.fechacons as Fecha, " + cajaNom + ".Caja as Caja FROM  contratos INNER JOIN " + cajaNom + " " +
+                         " ON contratos.contrato = " + cajaNom + ".contrato  " +
                             " WHERE contratos.Fechacons= '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
-                                 " and " + caja + ".concepto LIKE '%PRESTAMO%' " +
-                                        " and contratos.Status<>'CANCELADO' group by contratos.FechaCons, " + caja + ".Caja " +
+                                 " and " + cajaNom + ".concepto LIKE '%PRESTAMO%' " +
+                                        " and contratos.Status<>'CANCELADO' group by contratos.FechaCons, " + cajaNom + ".Caja " +
                                              "";
 
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
@@ -282,8 +297,18 @@ namespace EKReportsemp.WinForms.Classes
                         //año
                         //caja
 
-                        resultPrestamosPorCaja.Rows.Add(1, prestamo, fecha, caja, cajaLetra, month, year, database.Substring(9));
+                        resultPrestamosPorCaja.Rows.Add(fecha, loc, database.Substring(9),
+                                                    database, fecha.Month.ToString(), fecha.Year.ToString(),
+                                                      caja, cajaNom, emp, prestamo);
 
+
+                    }
+                    else
+                    {
+
+                        resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                   database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                     caja, cajaNom, emp, 0);
 
                     }
 
@@ -423,7 +448,8 @@ namespace EKReportsemp.WinForms.Classes
         //Crea un DataTable de la suma de las operaciones totales de prestamos de cajas por dia de NOTAS DE PAGO
         public DataTable NotasDePagoXdiaResumen(int month, int year, string database,
             int opc, DateTime fechaInicio,
-            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja)
+            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja
+            , string emp, string loc, string cajaNom)
         {
 
             string sql;
@@ -438,20 +464,18 @@ namespace EKReportsemp.WinForms.Classes
             DateTime inicio;
             resultCajas = new DataTable();
             resultNotasDePagoPorCaja = new DataTable("NotasDePago");
-            resultNotasDePagoPorCaja.Columns.Add("Factura");
-            resultNotasDePagoPorCaja.Columns.Add("Contrato");
-            resultNotasDePagoPorCaja.Columns.Add("Debe");
+            resultNotasDePagoPorCaja.Columns.Add("Fecha");
+            resultNotasDePagoPorCaja.Columns.Add("Localidad");
+            resultNotasDePagoPorCaja.Columns.Add("NomSuc");
+            resultNotasDePagoPorCaja.Columns.Add("BD");
+            resultNotasDePagoPorCaja.Columns.Add("Mes");
+            resultNotasDePagoPorCaja.Columns.Add("Ano");
+            resultNotasDePagoPorCaja.Columns.Add("Caja");
+            resultNotasDePagoPorCaja.Columns.Add("CajaNom");
+            resultNotasDePagoPorCaja.Columns.Add("Empresa");
             resultNotasDePagoPorCaja.Columns.Add("Subtotal");
             resultNotasDePagoPorCaja.Columns.Add("Iva");
             resultNotasDePagoPorCaja.Columns.Add("Total");
-            resultNotasDePagoPorCaja.Columns.Add("Estatus");
-            resultNotasDePagoPorCaja.Columns.Add("FechaFact");
-            resultNotasDePagoPorCaja.Columns.Add("Caja");
-            resultNotasDePagoPorCaja.Columns.Add("CajaLetra");
-            resultNotasDePagoPorCaja.Columns.Add("Mes");
-            resultNotasDePagoPorCaja.Columns.Add("Ano");
-            resultNotasDePagoPorCaja.Columns.Add("Suc");
-            resultNotasDePagoPorCaja.Columns.Add("Prestamo");
 
 
 
@@ -479,6 +503,10 @@ namespace EKReportsemp.WinForms.Classes
                     {
 
 
+
+                      
+
+
                         subtotal = decimal.Parse(baseResult.Rows[0][0].ToString());
                         iva = decimal.Parse(baseResult.Rows[0][1].ToString());
                         total = decimal.Parse(baseResult.Rows[0][2].ToString());
@@ -489,9 +517,21 @@ namespace EKReportsemp.WinForms.Classes
                         //año
                         //caja
 
-                        resultNotasDePagoPorCaja.Rows.Add(1, 1, 1, subtotal, iva,
-                            total, 1, fecha, caja, caja, 1, 1, database.Substring(9), 1);
+                      
 
+
+
+                        resultNotasDePagoPorCaja.Rows.Add(fecha, loc, database.Substring(9), database,
+                            fecha.Month.ToString(), fecha.Year.ToString(), caja, cajaNom,emp, subtotal, iva,
+                            total);
+
+                    }
+                    else
+                    {
+
+                        resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9), database,
+                           inicio.Month.ToString(), inicio.Year.ToString(), caja, cajaNom, emp, 0, 0,
+                           0);
                     }
 
 
@@ -511,11 +551,11 @@ namespace EKReportsemp.WinForms.Classes
                     sql = "USE " + database + "  " +
                      " SELECT " +
                 " sum(facturas.importefact), sum(facturas.ivafact), sum(facturas.totalfact), " +
-                "facturas.fechafact," + caja + ".caja FROM  facturas " +
-                " INNER JOIN " + caja + " ON facturas.factura = " + caja + ".folio " +
+                "facturas.fechafact," + cajaNom + ".caja FROM  facturas " +
+                " INNER JOIN " + cajaNom + " ON facturas.factura = " + cajaNom + ".folio " +
                 " WHERE facturas.FechaFact = '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "' " +
-                " and " + caja + ".concepto like '%DESEMP%'  and facturas.status = 'VALIDO' " +
-                " group by facturas.FechaFact , " + caja + ".Caja";
+                " and " + cajaNom + ".concepto like '%DESEMP%'  and facturas.status = 'VALIDO' " +
+                " group by facturas.FechaFact , " + cajaNom + ".Caja";
 
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
                     baseResult = new DataTable();
@@ -535,9 +575,17 @@ namespace EKReportsemp.WinForms.Classes
                         //año
                         //caja
 
-                        resultNotasDePagoPorCaja.Rows.Add(1, 1, 1, subtotal, iva,
-                            total, 1, fecha, caja, cajaLetra, month, year, database.Substring(9), 1);
+                        resultNotasDePagoPorCaja.Rows.Add(fecha, loc, database.Substring(9), database,
+                          fecha.Month.ToString(), fecha.Year.ToString(), caja, cajaNom, emp, subtotal, iva,
+                          total);
 
+                    }
+                    else
+                    {
+
+                        resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9), database,
+                           inicio.Month.ToString(), inicio.Year.ToString(), caja, cajaNom, emp, 0, 0,
+                           0);
                     }
 
                     inicio = inicio.AddDays(1);
@@ -677,12 +725,11 @@ namespace EKReportsemp.WinForms.Classes
         //Crea un DataTable de la suma de las operaciones totales de prestamos de cajas por dia de NOTAS DE PAGO
         public DataTable RemisionesXdiaResumen(int month, int year, string database,
             int opc, DateTime fechaInicio,
-            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja, decimal iva, decimal parte)
+            DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja, decimal iva, decimal parte,
+           string  emp, string localidad,string cajaletra)
         {
             string sql;
-           // string caja;
-           // string mes;
-
+           
             decimal subtotalParte;
             decimal totalParte;
             decimal Subtotal;
@@ -693,15 +740,19 @@ namespace EKReportsemp.WinForms.Classes
 
             DateTime fecha;
 
-            //int dias;
-
-
-
             DateTime inicio;
             resultCajas = new DataTable();
+
             resultRemisionesPorCaja = new DataTable("Remisiones");
-            resultRemisionesPorCaja.Columns.Add("NumRemision");
             resultRemisionesPorCaja.Columns.Add("Fecha");
+            resultRemisionesPorCaja.Columns.Add("Localidad");
+            resultRemisionesPorCaja.Columns.Add("NomSuc");
+            resultRemisionesPorCaja.Columns.Add("BD");
+            resultRemisionesPorCaja.Columns.Add("Mes");
+            resultRemisionesPorCaja.Columns.Add("Ano");
+            resultRemisionesPorCaja.Columns.Add("Caja");
+            resultRemisionesPorCaja.Columns.Add("CajaNom");
+            resultRemisionesPorCaja.Columns.Add("Empresa");
 
             resultRemisionesPorCaja.Columns.Add("Subtotal");//Total
             resultRemisionesPorCaja.Columns.Add("Iva");//Iva tomando el total
@@ -710,14 +761,6 @@ namespace EKReportsemp.WinForms.Classes
             resultRemisionesPorCaja.Columns.Add("subtotalParte");//EL 97.5 que se toma
             resultRemisionesPorCaja.Columns.Add("IvaParte");
             resultRemisionesPorCaja.Columns.Add("TotalParte");//EL 97.5 que se toma
-
-            resultRemisionesPorCaja.Columns.Add("Caja");
-            resultRemisionesPorCaja.Columns.Add("CajaLetra");
-            resultRemisionesPorCaja.Columns.Add("Mes");
-            resultRemisionesPorCaja.Columns.Add("Ano");
-            resultRemisionesPorCaja.Columns.Add("Suc");
-
-
 
 
             //SI LO QUIERE UNIFICADO//
@@ -743,10 +786,16 @@ namespace EKReportsemp.WinForms.Classes
                         {
                            
                             fecha = DateTime.Parse(rows[0].ToString());
-                            total = decimal.Parse(rows[1].ToString());                         
-                            ivaTotal = total * iva;
-                            Subtotal = total - iva;
 
+                            total = decimal.Parse(rows[1].ToString());
+
+                            ivaTotal = total * iva;
+
+                            Subtotal = total - ivaTotal;
+
+
+
+                         
                             //tomando el dichoso 97.5 o cualquier porcentaje del total de la venta
                             totalParte = total * parte / 100;
                             ivaParte = totalParte * iva;
@@ -754,9 +803,16 @@ namespace EKReportsemp.WinForms.Classes
                             //mes
                             //año
                             //caja
-                            resultRemisionesPorCaja.Rows.Add(1, fecha,Subtotal, ivaTotal,total,
-                                subtotalParte, ivaParte, totalParte, caja, caja, month, year, database.Substring(9));
+                            resultRemisionesPorCaja.Rows.Add(fecha,localidad, database.Substring(9),database,
+                                fecha.Month.ToString(),fecha.Year.ToString() ,cajaletra,caja,emp,Subtotal, ivaTotal,total,
+                                subtotalParte, ivaParte, totalParte);
                         }
+                    }
+                    else
+                    {
+
+                        resultRemisionesPorCaja.Rows.Add(inicio, localidad, database.Substring(9), database,
+                                 inicio.Month.ToString(), inicio.Year.ToString(), cajaletra, caja, emp, 0,0,0,0,0,0);
                     }
 
 
@@ -777,7 +833,7 @@ namespace EKReportsemp.WinForms.Classes
                     sql = "USE " + database + "  " +
                            "SELECT Fecha,Sum(importe), Caja" +
                              "  FROM  Remisiones " +
-                              " WHERE fecha =  '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
+                              " WHERE fecha ='" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
                               "  and status='VENDIDO' and caja='" + caja + "' group by  fecha,caja" +
                                                     "";
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
@@ -789,25 +845,33 @@ namespace EKReportsemp.WinForms.Classes
                         foreach (DataRow rows in baseResult.Rows)
                         {
 
+                            fecha = DateTime.Parse(rows[0].ToString());
 
-                            //fecha = DateTime.Parse(rows[0].ToString());
-                            //importe = decimal.Parse(rows[1].ToString());
-                            //cajaLetra = rows[2].ToString();
+                            total = decimal.Parse(rows[1].ToString());
 
-                            //ivaTotal = importe * iva;
-                            ////tomando el dichoso 97.5
+                            cajaLetra = rows[2].ToString();
 
-                            //subtotalParte = importe * parte / 100;
-                            //ivaParte = subtotalParte * iva;
+                            ivaTotal = total * iva;
 
-                            ////mes
-                            ////año
-                            ////caja
+                            Subtotal = total - ivaTotal;
 
-
-                            //resultRemisionesPorCaja.Rows.Add(1, fecha, importe, ivaTotal,
-                            //   ivaParte, subtotalParte, row[0].ToString(), cajaLetra, month, year, database.Substring(9));
+                            //tomando el dichoso 97.5 o cualquier porcentaje del total de la venta
+                            totalParte = total * parte / 100;
+                            ivaParte = totalParte * iva;
+                            subtotalParte = totalParte - ivaParte;
+                            //mes
+                            //año
+                            //caja
+                            resultRemisionesPorCaja.Rows.Add(fecha, localidad, database.Substring(9), database,
+                                fecha.Month.ToString(), fecha.Year.ToString(), cajaletra, caja, emp, Subtotal, ivaTotal, total,
+                                subtotalParte, ivaParte, totalParte);
                         }
+                    }
+                    else
+                    {
+
+                        resultRemisionesPorCaja.Rows.Add(inicio, localidad, database.Substring(9), database,
+                                 inicio.Month.ToString(), inicio.Year.ToString(), cajaletra, caja, emp, 0, 0, 0, 0, 0, 0);
                     }
 
                     inicio = inicio.AddDays(1);
@@ -897,7 +961,55 @@ namespace EKReportsemp.WinForms.Classes
         }
         #endregion
 
+        #region Diseño de Resultado Prestamos
+        public DataTable diseñoDeResultado(DataTable resumen, DateTime fechaInicio, DateTime fechaFinal)
+        {
+            //tabla fechas
+            DataTable fechas = new DataTable("Fechas");
+            fechas.Columns.Add("Fecha");
+            //cuantas columnas voy agregar
+            string a, b = "";
+            int distintas = 0;
+            foreach (DataRow item in resumen.Rows)
+            {
+                a = item[2].ToString();
 
+                if (a != b)
+                {
+                    b = item[2].ToString();
+
+                    distintas += 1;
+                }
+
+
+            }
+
+            for (int i = 1; i <= distintas; i++)
+            {
+                fechas.Columns.Add("Localidad");
+                fechas.Columns.Add("Año");
+                fechas.Columns.Add("Mes");
+                fechas.Columns.Add("Prestamo");
+            }
+
+
+
+
+
+            //tomasmos los dias de diferencia para reccorer ese numero de fechas
+            int dias = (int)(fechaFinal - fechaInicio).TotalDays;
+            for (int i = 0; i <= dias; i++)
+            {
+                fechas.Rows.Add(resumen.Rows[i][0].ToString());
+            }
+
+
+
+            return fechas;
+           
+
+        }
+        #endregion
 
         #endregion
 
