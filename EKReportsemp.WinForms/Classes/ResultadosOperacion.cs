@@ -267,11 +267,12 @@ namespace EKReportsemp.WinForms.Classes
 
                 inicio = fechaInicio;
 
+                resultPrestamosPorCaja.Clear();//limpiamos para reccore resultados de caja por caja
 
                 while (inicio <= fechaFinal)
                 {
 
-
+                
                     sql = "USE " + database + "  " +
                      "SELECT  sum(contratos.prestamo) as Prestamo," +
                      " contratos.fechacons as Fecha, " + cajaNom + ".Caja as Caja FROM  contratos INNER JOIN " + cajaNom + " " +
@@ -544,7 +545,7 @@ namespace EKReportsemp.WinForms.Classes
             {
 
                 inicio = fechaInicio;
-
+                resultNotasDePagoPorCaja.Clear();
                 while (inicio <= fechaFinal)
                 {
 
@@ -826,6 +827,7 @@ namespace EKReportsemp.WinForms.Classes
             {
 
                 inicio = fechaInicio;
+                resultRemisionesPorCaja.Clear();
 
                 while (inicio <= fechaFinal)
                 {
@@ -834,7 +836,7 @@ namespace EKReportsemp.WinForms.Classes
                            "SELECT Fecha,Sum(importe), Caja" +
                              "  FROM  Remisiones " +
                               " WHERE fecha ='" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
-                              "  and status='VENDIDO' and caja='" + caja + "' group by  fecha,caja" +
+                              "  and status='VENDIDO' and caja='" + cajaletra + "' group by  fecha,caja" +
                                                     "";
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
                     baseResult = new DataTable();
@@ -986,10 +988,10 @@ namespace EKReportsemp.WinForms.Classes
 
             for (int i = 1; i <= distintas; i++)
             {
-                fechas.Columns.Add("Localidad");
-                fechas.Columns.Add("Año");
-                fechas.Columns.Add("Mes");
-                fechas.Columns.Add("Prestamo");
+                fechas.Columns.Add("Loc"+ i.ToString() + "");
+                fechas.Columns.Add("AnoAct" + i.ToString() + "");
+                fechas.Columns.Add("MesAct" + i.ToString() + "");
+                fechas.Columns.Add("PrestamoT" + i.ToString() + "");
             }
 
 
@@ -1003,7 +1005,11 @@ namespace EKReportsemp.WinForms.Classes
                 fechas.Rows.Add(resumen.Rows[i][0].ToString());
             }
 
-
+            int recorrer = dias;
+            foreach  (DataRow item in resumen.Rows)
+            {
+                //actualizo las filas
+            }
 
             return fechas;
            

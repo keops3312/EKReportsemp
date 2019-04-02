@@ -41,9 +41,19 @@
             this.cmbTipo = new DevComponents.DotNetBar.Controls.ComboBoxEx();
             this.labelX1 = new DevComponents.DotNetBar.LabelX();
             this.localidadesGrid = new DevComponents.DotNetBar.Controls.DataGridViewX();
+            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Sucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.BD = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Empresa = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.labelX2 = new DevComponents.DotNetBar.LabelX();
             this.labelX3 = new DevComponents.DotNetBar.LabelX();
             this.cajasGrid = new DevComponents.DotNetBar.Controls.DataGridViewX();
+            this.Seleccionar2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Caja = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Base = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Emp = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Localidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dateTimeInput1 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
             this.checkRangosSemana = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.dateTimeInput2 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
@@ -65,16 +75,6 @@
             this.labelX6 = new DevComponents.DotNetBar.LabelX();
             this.labelX7 = new DevComponents.DotNetBar.LabelX();
             this.dataGridViewX1 = new DevComponents.DotNetBar.Controls.DataGridViewX();
-            this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Sucursal = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.BD = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Empresa = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Seleccionar2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Caja = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nom = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Base = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Emp = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Localidad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.localidadesGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cajasGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dateTimeInput1)).BeginInit();
@@ -136,11 +136,11 @@
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.localidadesGrid.DefaultCellStyle = dataGridViewCellStyle2;
             this.localidadesGrid.EnableHeadersVisualStyles = false;
-            this.localidadesGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
+            this.localidadesGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
             this.localidadesGrid.Location = new System.Drawing.Point(12, 160);
             this.localidadesGrid.Name = "localidadesGrid";
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -153,6 +153,33 @@
             this.localidadesGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.localidadesGrid.Size = new System.Drawing.Size(325, 177);
             this.localidadesGrid.TabIndex = 2;
+            // 
+            // Seleccionar
+            // 
+            this.Seleccionar.FillWeight = 66F;
+            this.Seleccionar.HeaderText = "Seleccione";
+            this.Seleccionar.MinimumWidth = 66;
+            this.Seleccionar.Name = "Seleccionar";
+            // 
+            // Sucursal
+            // 
+            this.Sucursal.FillWeight = 200F;
+            this.Sucursal.HeaderText = "Sucursal";
+            this.Sucursal.MinimumWidth = 200;
+            this.Sucursal.Name = "Sucursal";
+            // 
+            // BD
+            // 
+            this.BD.FillWeight = 5F;
+            this.BD.HeaderText = "BD";
+            this.BD.Name = "BD";
+            this.BD.Visible = false;
+            // 
+            // Empresa
+            // 
+            this.Empresa.HeaderText = "Empresa";
+            this.Empresa.Name = "Empresa";
+            this.Empresa.Visible = false;
             // 
             // labelX2
             // 
@@ -203,11 +230,11 @@
             dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.cajasGrid.DefaultCellStyle = dataGridViewCellStyle5;
             this.cajasGrid.EnableHeadersVisualStyles = false;
-            this.cajasGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
+            this.cajasGrid.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
             this.cajasGrid.Location = new System.Drawing.Point(401, 160);
             this.cajasGrid.Name = "cajasGrid";
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -220,6 +247,46 @@
             this.cajasGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.cajasGrid.Size = new System.Drawing.Size(264, 177);
             this.cajasGrid.TabIndex = 5;
+            // 
+            // Seleccionar2
+            // 
+            this.Seleccionar2.FillWeight = 66F;
+            this.Seleccionar2.HeaderText = "Seleccione";
+            this.Seleccionar2.MinimumWidth = 66;
+            this.Seleccionar2.Name = "Seleccionar2";
+            this.Seleccionar2.Width = 66;
+            // 
+            // Caja
+            // 
+            this.Caja.FillWeight = 155F;
+            this.Caja.HeaderText = "Caja";
+            this.Caja.MinimumWidth = 155;
+            this.Caja.Name = "Caja";
+            this.Caja.Width = 155;
+            // 
+            // nom
+            // 
+            this.nom.HeaderText = "nom";
+            this.nom.Name = "nom";
+            this.nom.Visible = false;
+            // 
+            // Base
+            // 
+            this.Base.HeaderText = "Base";
+            this.Base.Name = "Base";
+            this.Base.Visible = false;
+            // 
+            // Emp
+            // 
+            this.Emp.HeaderText = "Emp";
+            this.Emp.Name = "Emp";
+            this.Emp.Visible = false;
+            // 
+            // Localidad
+            // 
+            this.Localidad.HeaderText = "Localidad";
+            this.Localidad.Name = "Localidad";
+            this.Localidad.Visible = false;
             // 
             // dateTimeInput1
             // 
@@ -543,6 +610,8 @@
             // 
             // dataGridViewX1
             // 
+            this.dataGridViewX1.AllowUserToAddRows = false;
+            this.dataGridViewX1.AllowUserToDeleteRows = false;
             dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -557,13 +626,14 @@
             dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle8;
             this.dataGridViewX1.EnableHeadersVisualStyles = false;
-            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
+            this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(215)))), ((int)(((byte)(229)))));
             this.dataGridViewX1.Location = new System.Drawing.Point(12, 343);
             this.dataGridViewX1.Name = "dataGridViewX1";
+            this.dataGridViewX1.ReadOnly = true;
             dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -574,73 +644,6 @@
             this.dataGridViewX1.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
             this.dataGridViewX1.Size = new System.Drawing.Size(653, 150);
             this.dataGridViewX1.TabIndex = 31;
-            // 
-            // Seleccionar
-            // 
-            this.Seleccionar.FillWeight = 66F;
-            this.Seleccionar.HeaderText = "Seleccione";
-            this.Seleccionar.MinimumWidth = 66;
-            this.Seleccionar.Name = "Seleccionar";
-            // 
-            // Sucursal
-            // 
-            this.Sucursal.FillWeight = 200F;
-            this.Sucursal.HeaderText = "Sucursal";
-            this.Sucursal.MinimumWidth = 200;
-            this.Sucursal.Name = "Sucursal";
-            // 
-            // BD
-            // 
-            this.BD.FillWeight = 5F;
-            this.BD.HeaderText = "BD";
-            this.BD.Name = "BD";
-            this.BD.Visible = false;
-            // 
-            // Empresa
-            // 
-            this.Empresa.HeaderText = "Empresa";
-            this.Empresa.Name = "Empresa";
-            this.Empresa.Visible = false;
-            // 
-            // Seleccionar2
-            // 
-            this.Seleccionar2.FillWeight = 66F;
-            this.Seleccionar2.HeaderText = "Seleccione";
-            this.Seleccionar2.MinimumWidth = 66;
-            this.Seleccionar2.Name = "Seleccionar2";
-            this.Seleccionar2.Width = 66;
-            // 
-            // Caja
-            // 
-            this.Caja.FillWeight = 155F;
-            this.Caja.HeaderText = "Caja";
-            this.Caja.MinimumWidth = 155;
-            this.Caja.Name = "Caja";
-            this.Caja.Width = 155;
-            // 
-            // nom
-            // 
-            this.nom.HeaderText = "nom";
-            this.nom.Name = "nom";
-            this.nom.Visible = false;
-            // 
-            // Base
-            // 
-            this.Base.HeaderText = "Base";
-            this.Base.Name = "Base";
-            this.Base.Visible = false;
-            // 
-            // Emp
-            // 
-            this.Emp.HeaderText = "Emp";
-            this.Emp.Name = "Emp";
-            this.Emp.Visible = false;
-            // 
-            // Localidad
-            // 
-            this.Localidad.HeaderText = "Localidad";
-            this.Localidad.Name = "Localidad";
-            this.Localidad.Visible = false;
             // 
             // ConfigRepForm
             // 

@@ -88,21 +88,21 @@ namespace EKReportsemp.WinForms.Views
             cajasSeleccionadas.Columns.Add("Localidad");
 
             resumen = new DataTable();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
-            resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
+            //resumen.Columns.Add();
 
 
         }
@@ -283,9 +283,42 @@ namespace EKReportsemp.WinForms.Views
         private void BeginReport()
         {
 
+            DataTable DISEÑO = new DataTable();
+            DISEÑO.Columns.Add("Fecha");
+            DISEÑO.Columns.Add("Mes");
+            DISEÑO.Columns.Add("Año");
+
+            string a, b = "";//para unifica
+            string c, d = "";//para las cajas
+            string f, g = "";//para las cajas
+            int distintas = 0;
+            int columna_dato = 0;
+            DateTime inicio;
+            inicio = fechaInicio;
+            // Difference in days, hours, and minutes.
+            TimeSpan ts = fechaFinal - fechaInicio;
+
+
+            // Difference in days.
+            int totalDias = ts.Days;
+
+            //lleno mi tabla con la fecha y el año
+            while (inicio <= fechaFinal)
+            {
+
+
+                DISEÑO.Rows.Add(inicio, inicio.Month.ToString(), inicio.Year.ToString());
+
+                inicio = inicio.AddDays(1);
+
+
+            }
 
             if (tipoReporte == "Prestamos")
             {
+                
+
+
 
                 resumen.Clear();
 
@@ -299,35 +332,151 @@ namespace EKReportsemp.WinForms.Views
                     bd = item[2].ToString();//SEMP2013_TLXX
                     emp = item[3].ToString();//Monte Ros
                     localidad = item[4].ToString();//Tula monte ros
-                 
-                    
-                   
-                   
 
 
 
-                    resultadoReporte.Clear();
+                        c = item[0].ToString();
+                        a = item[2].ToString();
 
-                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, database, 1,
-                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja,emp,localidad,cajaletra);
-
-
-                    foreach (DataRow r in resultadoReporte.Rows)
+                    if (unifica == 1)
                     {
-                        resumen.Rows.Add(r[0].ToString(),  r[1].ToString(), r[2].ToString()
-                                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), 
-                                        r[6].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString());
+                        if (a != b)
+                        {
+                            b = item[2].ToString();
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("Prestamos_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
 
+
+
+
+
+                            distintas += 1;
+
+                            if (distintas == 1)
+                            {
+                                columna_dato += 3;
+                            }
+                            else
+                            {
+                                columna_dato += 2;
+                            }
+                        }
+                       
+                    }
+                    else
+                    {
+                     
+
+                        f = database;
+
+                        
+                        if (f == g)
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("" + caja + "");
+                            columna_dato += 1;
+                           
+                        }
+
+
+                        if (string.IsNullOrEmpty(g))
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("" + caja + "");
+
+                            columna_dato += 3;
+                            g = f;
+                        }
+
+
+                        if (f != g )
+                        {
+                            DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("" + caja + "");
+
+                            g = f;
+                            columna_dato += 3;
+
+
+
+                        }
+
+                      
+
+                       
 
 
                     }
 
+                    resultadoReporte.Clear();
 
+                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, database, 1,
+                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja, emp, localidad, cajaletra);
+                    ////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                    ///
+                    int i = 0;
+                    foreach (DataRow items in resultadoReporte.Rows)
+                    {
+                        DISEÑO.Rows[i][columna_dato] = items[9].ToString();
+                        DISEÑO.AcceptChanges();
+                        i = i + 1;
+                    }
+
+                    if (resultadoReporte.Rows.Count == 0)
+                    {
+                        for (int z = 0; z < totalDias ; z++)
+                        {
+                            DISEÑO.Rows[z][columna_dato] = "0.00";
+                            DISEÑO.AcceptChanges();
+
+                        }
+
+                    }
+
+                    #region MyRegion
+                    //for (int i = 0; i <= resultadoReporte.Rows.Count; i++)
+                    //{
+
+                    //    DISEÑO.Rows[i][columna_dato] = resultadoReporte.Rows[i][9].ToString();
+
+                    //}
+
+
+                    //Resultados por caja
+
+
+
+
+                    //foreach (DataRow r in resultadoReporte.Rows)
+                    //{
+
+
+                    //    resumen.Rows.Add(r[0].ToString(),  r[1].ToString(), r[2].ToString()
+                    //                    , r[3].ToString(), r[4].ToString(), r[5].ToString(), 
+                    //                    r[6].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString());
+
+
+
+                    //} 
+                    #endregion
 
 
                 }
 
+                if (unifica != 1)
+                {
+                    //Para la ultima sucursal se agregan las columnas
+                    DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
 
+                }
+                resumen = DISEÑO;
+
+                //AHORA LA SUMA DE CADA UNO DE LOS BLOQUES
+                
 
             }
 
@@ -335,13 +484,15 @@ namespace EKReportsemp.WinForms.Views
 
             if (tipoReporte == "Notas de Pago")
             {
+               
+
 
                 resumen.Clear();
 
                 foreach (DataRow item in cajasSeleccionadas.Rows)
                 {
-
                     string caja, database, emp, bd, localidad, cajaletra;
+
                     caja = item[0].ToString();//TLX11
                     cajaletra = item[1].ToString();//CIS-TLX1-1
                     database = item[2].ToString();
@@ -351,27 +502,175 @@ namespace EKReportsemp.WinForms.Views
 
 
 
-                    resultadoReporte.Clear();
-                    
-                    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1,2018,database,1,fechaInicio,fechaFinal,
-                        conn,unifica,porSemana,caja,emp,localidad, cajaletra);
+                    c = item[0].ToString();
+                    a = item[2].ToString();
 
-
-                    foreach (DataRow r in resultadoReporte.Rows)
+                    if (unifica == 1)
                     {
-                      
+                        if (a != b)
+                        {
+                            b = item[2].ToString();
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Iva_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
 
-                        resumen.Rows.Add(r[0].ToString(), r[1].ToString(), r[2].ToString()
-                                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString()
-                                        , r[8].ToString(), r[9].ToString(), r[10].ToString(), r[11].ToString());
+
+
+
+
+                            distintas += 1;
+
+                            if (distintas == 1)
+                            {
+                                columna_dato += 3;
+                            }
+                            else
+                            {
+                                columna_dato += 4;
+                            }
+                        }
+
+                    }
+                    else
+                    {
+
+
+                        f = database;
+
+
+                        if (f == g)
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                            DISEÑO.Columns.Add("IVA_" + caja + "");
+                            DISEÑO.Columns.Add("Total_" + caja + "");
+                            columna_dato += 3;
+
+                        }
+
+
+                        if (string.IsNullOrEmpty(g))
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                            DISEÑO.Columns.Add("IVA_" + caja + "");
+                            DISEÑO.Columns.Add("Total_" + caja + "");
+
+                            columna_dato += 3;
+                            g = f;
+                        }
+
+
+                        if (f != g)
+                        {
+                            DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                            DISEÑO.Columns.Add("IVA_" + caja + "");
+                            DISEÑO.Columns.Add("Total_" + caja + "");
+
+                            g = f;
+                            columna_dato += 5;
+
+
+
+                        }
+
+
+
+
+
+
                     }
 
+                    resultadoReporte.Clear();
 
+                    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1, 2018, database, 1, fechaInicio, fechaFinal,
+                           conn,unifica,porSemana,caja,emp,localidad, cajaletra);
 
+                    ////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                    ///
+                    int i = 0;
+                    foreach (DataRow items in resultadoReporte.Rows)
+                    {
+                        DISEÑO.Rows[i][columna_dato] = items[9].ToString();
+                        DISEÑO.Rows[i][columna_dato+1] = items[10].ToString();
+                        DISEÑO.Rows[i][columna_dato+2] = items[11].ToString();
+                        DISEÑO.AcceptChanges();
+                        i = i + 1;
+                    }
+
+                    if (resultadoReporte.Rows.Count == 0)
+                    {
+                        for (int z = 0; z < totalDias; z++)
+                        {
+                            DISEÑO.Rows[z][columna_dato] = "0.00";
+                            DISEÑO.Rows[z][columna_dato+1] = "0.00";
+                            DISEÑO.Rows[z][columna_dato+2] = "0.00";
+                            DISEÑO.AcceptChanges();
+
+                        }
+
+                    }
+
+               
 
                 }
 
+                if (unifica != 1)
+                {
+                    //Para la ultima sucursal se agregan las columnas
+                    DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
 
+                }
+                resumen = DISEÑO;
+
+                //AHORA LA SUMA DE CADA UNO DE LOS BLOQUES
+
+
+
+
+
+                #region MyRegion
+                //foreach (DataRow item in cajasSeleccionadas.Rows)
+                //{
+
+                //    string caja, database, emp, bd, localidad, cajaletra;
+                //    caja = item[0].ToString();//TLX11
+                //    cajaletra = item[1].ToString();//CIS-TLX1-1
+                //    database = item[2].ToString();
+                //    bd = item[2].ToString();//SEMP2013_TLXX
+                //    emp = item[3].ToString();//Monte Ros
+                //    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                //    resultadoReporte.Clear();
+
+                //    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1,2018,database,1,fechaInicio,fechaFinal,
+                //        conn,unifica,porSemana,caja,emp,localidad, cajaletra);
+
+
+                //    foreach (DataRow r in resultadoReporte.Rows)
+                //    {
+
+
+                //        resumen.Rows.Add(r[0].ToString(), r[1].ToString(), r[2].ToString()
+                //                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString()
+                //                        , r[8].ToString(), r[9].ToString(), r[10].ToString(), r[11].ToString());
+                //    }
+
+
+
+
+                //}
+
+
+                #endregion
 
             }
 
@@ -381,10 +680,13 @@ namespace EKReportsemp.WinForms.Views
 
                 resumen.Clear();
 
+
+
+
                 foreach (DataRow item in cajasSeleccionadas.Rows)
                 {
-
                     string caja, database, emp, bd, localidad, cajaletra;
+
                     caja = item[0].ToString();//TLX11
                     cajaletra = item[1].ToString();//CIS-TLX1-1
                     database = item[2].ToString();
@@ -394,43 +696,238 @@ namespace EKReportsemp.WinForms.Views
 
 
 
-                    resultadoReporte.Clear();
+                    c = item[0].ToString();
+                    a = item[2].ToString();
 
-                  
+                    if (unifica == 1)
+                    {
+                        if (a != b)
+                        {
+                            b = item[2].ToString();
+                            //Y agregamos nuestra primera informacion de sucursal
+
+                            //Subtotal, ivaTotal, total,
+                            //subtotalParte, ivaParte, totalParte);
+
+
+                            DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
+
+
+
+
+
+                            distintas += 1;
+
+                            if (distintas == 1)
+                            {
+                                columna_dato += 3;
+                            }
+                            else
+                            {
+                                columna_dato += 7;
+                            }
+                        }
+
+                    }
+                    else
+                    {
+
+
+                        f = database;
+
+
+                        if (f == g)
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+                            columna_dato +=7;
+
+                        }
+
+
+                        if (string.IsNullOrEmpty(g))
+                        {
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+
+                            columna_dato += 3;
+                            g = f;
+                        }
+
+
+                        if (f != g)
+                        {
+                           
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                            DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                            DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+
+
+                            g = f;
+                            columna_dato += 8;
+
+
+
+                        }
+
+
+
+
+
+
+                    }
+
                     resultadoReporte.Clear();
 
                     resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
-                                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
+                                           fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
 
 
-                    foreach (DataRow r in resultadoReporte.Rows)
+                    ////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                    ///
+                    int i = 0;
+                    foreach (DataRow items in resultadoReporte.Rows)
                     {
-                       
+                        DISEÑO.Rows[i][columna_dato] = items[9].ToString();//3
+                        DISEÑO.Rows[i][columna_dato + 1] = items[10].ToString();//4
+                        DISEÑO.Rows[i][columna_dato + 2] = items[11].ToString();//5
+                        DISEÑO.Rows[i][columna_dato + 3] = items[12].ToString();//6
+                        DISEÑO.Rows[i][columna_dato + 4] = items[13].ToString();//7
+                        DISEÑO.Rows[i][columna_dato + 5] = items[14].ToString();//8
+                        DISEÑO.AcceptChanges();
+                        i = i + 1;
+                    }
 
-                       
+                    if (resultadoReporte.Rows.Count == 0)
+                    {
+                        for (int z = 0; z < totalDias; z++)
+                        {
+                            DISEÑO.Rows[z][columna_dato] = "0.00";
+                            DISEÑO.Rows[z][columna_dato + 1] = "0.00";
+                            DISEÑO.Rows[z][columna_dato + 2] = "0.00";
+                            DISEÑO.Rows[z][columna_dato + 3] = "0.00";
+                            DISEÑO.Rows[z][columna_dato + 4] = "0.00";
+                            DISEÑO.Rows[z][columna_dato + 5] = "0.00";
+                            DISEÑO.AcceptChanges();
 
-                        resumen.Rows.Add(r[0].ToString(),
-                            r[1].ToString(),
-                            r[2].ToString(),
-                            r[3].ToString(),
-                            r[4].ToString(),
-                            r[5].ToString(),
-                            r[6].ToString(),
-                            r[7].ToString(),
-                            r[8].ToString(),
-                            decimal.Parse(r[9].ToString()).ToString("N2"),
-                            decimal.Parse(r[10].ToString()).ToString("N2"),
-                            decimal.Parse(r[11].ToString()).ToString("N2"),
-                            decimal.Parse(r[12].ToString()).ToString("N2"),
-                            decimal.Parse(r[13].ToString()).ToString("N2"),
-                            decimal.Parse(r[14].ToString()).ToString("N2")
-                            );
+                        }
+
                     }
 
 
 
+                }
+
+
+
+                if (unifica != 1)
+                {
+                    //Para la ultima sucursal se agregan las columnas
+                    DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
 
                 }
+                resumen = DISEÑO;
+
+
+
+
+
+
+                #region MyRegion
+
+
+                //resultRemisionesPorCaja.Rows.Add(fecha, localidad, database.Substring(9), database,
+                //              fecha.Month.ToString(), fecha.Year.ToString(), cajaletra, caja, emp, Subtotal, ivaTotal, total,
+                //              subtotalParte, ivaParte, totalParte);
+
+
+                //foreach (DataRow item in cajasSeleccionadas.Rows)
+                //{
+
+                //    string caja, database, emp, bd, localidad, cajaletra;
+                //    caja = item[0].ToString();//TLX11
+                //    cajaletra = item[1].ToString();//CIS-TLX1-1
+                //    database = item[2].ToString();
+                //    bd = item[2].ToString();//SEMP2013_TLXX
+                //    emp = item[3].ToString();//Monte Ros
+                //    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                //    resultadoReporte.Clear();
+
+
+                //    resultadoReporte.Clear();
+
+                //    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
+                //                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
+
+
+                //    foreach (DataRow r in resultadoReporte.Rows)
+                //    {
+
+
+
+
+                //        resumen.Rows.Add(r[0].ToString(),
+                //            r[1].ToString(),
+                //            r[2].ToString(),
+                //            r[3].ToString(),
+                //            r[4].ToString(),
+                //            r[5].ToString(),
+                //            r[6].ToString(),
+                //            r[7].ToString(),
+                //            r[8].ToString(),
+                //            decimal.Parse(r[9].ToString()).ToString("N2"),
+                //            decimal.Parse(r[10].ToString()).ToString("N2"),
+                //            decimal.Parse(r[11].ToString()).ToString("N2"),
+                //            decimal.Parse(r[12].ToString()).ToString("N2"),
+                //            decimal.Parse(r[13].ToString()).ToString("N2"),
+                //            decimal.Parse(r[14].ToString()).ToString("N2")
+                //            );
+                //    }
+
+
+
+
+                //} 
+                #endregion
 
 
 
@@ -718,7 +1215,7 @@ namespace EKReportsemp.WinForms.Views
             MessageBoxEx.Show("Ejercicio Realizado", "EK Report SEMP", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 
-            diseñoDeResultado(resumen);
+            //diseñoDeResultado(resumen);
 
 
 
