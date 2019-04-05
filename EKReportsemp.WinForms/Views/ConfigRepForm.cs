@@ -794,12 +794,12 @@ namespace EKReportsemp.WinForms.Views
                             DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
 
                             DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
-                            DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+                            //DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
 
 
 
                             g = f;
-                            columna_dato += 8;
+                            columna_dato += 7;
 
 
 
@@ -860,6 +860,7 @@ namespace EKReportsemp.WinForms.Views
                     //Para la ultima sucursal se agregan las columnas
                     DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
                     DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
 
                 }
                 resumen = DISEÑO;

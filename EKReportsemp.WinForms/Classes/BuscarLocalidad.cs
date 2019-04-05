@@ -88,6 +88,10 @@ namespace EKReportsemp.WinForms.Classes
             return result;
         }
 
+
+
+
+
         public String[] DatosTitular(string user, string password)
         {
             String[] array = new string[7];
@@ -174,7 +178,34 @@ namespace EKReportsemp.WinForms.Classes
         }
 
 
-        public DataTable BuscarCajas(string BaseDatos)
+        public DataTable BuscarSucursales(string empresas)
+        {
+
+            DataTable result = new DataTable();
+            result.Columns.Add();
+            result.Columns.Add();
+            result.Columns.Add();
+            result.Clear();
+
+
+
+            string x = empresas;
+                var sucursales = db.Localidades.Where(c => c.CONCEPTO == "CASA DE EMPEÑO"
+                                && c.Empresa == x).ToList();
+
+                foreach (var item in sucursales)
+                {
+                    result.Rows.Add(item.Nombre_Sucursal, item.BD, item.Empresa);
+                }
+
+
+           
+
+            return result;
+        }
+
+
+        public DataTable BuscarCajasA(string BaseDatos)
         {
             DataTable result = new DataTable();
             result.Columns.Add();
@@ -189,7 +220,7 @@ namespace EKReportsemp.WinForms.Classes
             DataTable resultado = new DataTable();
             cmd.Fill(resultado);
 
-            foreach (DataRow item in result.Rows)
+            foreach (DataRow item in resultado.Rows)
             {
                 result.Rows.Add(item[0].ToString(), item[1].ToString());
             }
@@ -198,10 +229,31 @@ namespace EKReportsemp.WinForms.Classes
             return result;
 
         }
+
+
+
+        public DataTable DatosCaja(string caja)
+        {
+           
+            string conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+            SqlConnection cn = new SqlConnection(conn);
+
+            SqlDataAdapter cmd = new SqlDataAdapter(" " +
+                " SELECT * " +
+                " from ListCajas where Caja='" + caja + "' ", cn);
+            DataTable resultado = new DataTable();
+            cmd.Fill(resultado);
+
+           
+
+            return resultado;
+
+        }
+       
         #endregion
 
 
-        #endregion
+#endregion
 
 
 

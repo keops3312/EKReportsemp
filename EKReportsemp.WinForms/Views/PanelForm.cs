@@ -56,9 +56,18 @@ namespace EKReportsemp.WinForms.Views
                 }
                     
             }
-            
-            ConfigRepForm configRepForm = new ConfigRepForm(result);
+
+
+            //LUEGO PODRIA DECIR QUE CON CADA EMPRESA RECORRERCO
+
+
+            PanelV2Form configRepForm = new PanelV2Form(result);
             configRepForm.Show();
+
+
+            //ConfigRepForm configRepForm = new ConfigRepForm(result);
+            //configRepForm.Show();
+
             
         }
 
