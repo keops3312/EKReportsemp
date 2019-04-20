@@ -211,6 +211,8 @@ namespace EKReportsemp.WinForms.Classes
             if (unifica == 1)
             {
                 inicio = fechaInicio;
+                decimal acumuladoXsemana=0;
+                decimal AcumuladoXmes = 0;
 
                 while (inicio <= fechaFinal)
                 {
@@ -227,6 +229,11 @@ namespace EKReportsemp.WinForms.Classes
                     baseResult = new DataTable();
                     baseResult.Clear();
                     sqlDataAdapter.Fill(baseResult);
+
+                    //YA TENGO LOS ACUMULADOS AHORA VAMOS A SEPARARLO POR SEMANA
+
+                    int domingo = (int)inicio.DayOfWeek;
+
                     if (baseResult.Rows.Count > 0)
                     {
 
@@ -245,6 +252,17 @@ namespace EKReportsemp.WinForms.Classes
                                                     database,fecha.Month.ToString(),fecha.Year.ToString(),
                                                       caja,cajaNom,emp,prestamo);
 
+                        acumuladoXsemana += prestamo;//SUMA X SEMANA 
+                        AcumuladoXmes += prestamo;//ACUMULA EL MES TOTAL
+
+                        if (domingo == 0)
+                        {
+
+                            resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                 database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                   caja, cajaNom, emp, acumuladoXsemana);
+                            acumuladoXsemana = 0;
+                        }
 
                     }
                     else {
@@ -253,14 +271,32 @@ namespace EKReportsemp.WinForms.Classes
                                                    database, inicio.Month.ToString(), inicio.Year.ToString(),
                                                      caja, cajaNom, emp, 0);
 
-                       
+                        if (domingo == 0)
+                        {
+
+                            resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                 database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                   caja, cajaNom, emp, acumuladoXsemana);
+                            acumuladoXsemana = 0;
+                        }
+
                     }
 
+                   
 
                     inicio = inicio.AddDays(1);
 
 
                 }
+                //AGREGAMOS EL ULTIMO TOTAL
+                resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                            database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                              caja, cajaNom, emp, acumuladoXsemana);
+                resultPrestamosPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                           database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                             caja, cajaNom, emp, AcumuladoXmes);
+
+
             }
             else
             {

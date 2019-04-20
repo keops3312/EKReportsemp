@@ -1,31 +1,44 @@
-﻿using DevComponents.DotNetBar;
-using EKReportsemp.WinForms.Classes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿
 
 namespace EKReportsemp.WinForms.Views
 {
+
+    using System;
+    using System.Configuration;
+    using System.Data;
+    using System.Windows.Forms;
+    using ClosedXML.Excel;
+    using DevComponents.DotNetBar;
+    using EKReportsemp.WinForms.Classes;
+
+
+
     public partial class PanelV2Form : Office2007Form
     {
+        private BuscarLocalidad buscarLocalidad;
+        private DataTable resultMisCajas;
+        private ResultadosOperacion resultadosOperacion;
 
 
-        DataTable Empresa;
-        DataTable selcajas; 
-        
+        public DataTable Empresa;
+        public DataTable selcajas;
+        private DataTable resumen;
+        private DataTable resultadoReporte;
+        private int unifica;
+        private string conn;
+        private int porSemana;
 
-        BuscarLocalidad buscarLocalidad;
+
+
 
         public PanelV2Form(DataTable result)
         {
             InitializeComponent();
             buscarLocalidad = new BuscarLocalidad();
+            resultadosOperacion = new ResultadosOperacion();
+            resultadoReporte = new DataTable();
+
+
             Empresa = new DataTable();
             Empresa = result;
 
@@ -44,7 +57,7 @@ namespace EKReportsemp.WinForms.Views
         {
             int i = 0;
             int loc = 0;
-            //int caja = 0;
+           
            
             foreach  (DataRow item in Empresa.Rows)
             {
@@ -112,28 +125,6 @@ namespace EKReportsemp.WinForms.Views
                 i = i + 1;
 
             }
-
-
-
-
-            //int i = 0;
-            //foreach (DataRow item in Empresa.Rows)
-            //{
-            //    advTree1.CheckedNodes = true;
-            //    advTree1.Nodes.Add(item[0].ToString());
-            //    //Le agrego sus sucursales
-            //    DataTable listaSucursales = new DataTable();
-            //    listaSucursales = buscarLocalidad.BuscarSucursales(item[0].ToString());
-
-            //    foreach (DataRow suc in listaSucursales.Rows)
-            //    {
-            //        advTree1.Nodes[i].Nodes.Add(suc[0].ToString());
-
-            //    }
-            //    i = i + 1;
-
-            //}
-
 
         }
 
@@ -252,8 +243,15 @@ namespace EKReportsemp.WinForms.Views
 
         private void btnClose_Click(object sender, EventArgs e)
         {
+           
             this.Close();
         }
+
+
+
+
+
+
 
         private void btnInteres_Click(object sender, EventArgs e)
         {
@@ -347,8 +345,8 @@ namespace EKReportsemp.WinForms.Views
 
             //tipoReporte = cmbTipo.Text;
 
-            //unifica = (checkUnificar.Checked == true) ? 1 : 2;
-            //porSemana = (checkRangosSemana.Checked == true) ? 1 : 2;
+            unifica = (checkSemana.Checked == true) ? 1 : 2;
+            // porSemana = (checkRangosSemana.Checked == true) ? 1 : 2;
 
 
             //fechaInicio = dateTimeInput1.Value;
@@ -398,7 +396,7 @@ namespace EKReportsemp.WinForms.Views
 
 
             //backgroundWorker1.RunWorkerAsync();
-
+            BeginReport(date1.Value,date2.Value,"Prestamos");
         }
 
 
@@ -447,11 +445,772 @@ namespace EKReportsemp.WinForms.Views
                 
             }
 
-            dataGridView1.DataSource = selcajas;
+            dataGridView1.DataSource = selcajas;//Esto essolo para probar despues eliminar
 
             
         }
 
+
+
+        private void BeginReport(DateTime fechaInicio, DateTime fechaFinal,string tipo)
+        {
+            #region MyRegion
+            conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+
+
+            resumen = new DataTable();
+
+            DataTable DISEÑO = new DataTable();
+            DISEÑO.Columns.Add("Fecha");
+            DISEÑO.Columns.Add("Mes");
+            DISEÑO.Columns.Add("Año");
+
+            string a, b = "";//para unifica
+            string c, d = "";//para las cajas
+            string f, g = "";//para las cajas
+            int distintas = 0;
+            int columna_dato = 0;
+            DateTime inicio;
+            inicio = fechaInicio;
+            // Difference in days, hours, and minutes.
+            TimeSpan ts = fechaFinal - fechaInicio;
+
+
+            // Difference in days.
+            int totalDias = ts.Days;
+
+            //lleno mi tabla con la fecha y el año
+            while (inicio <= fechaFinal)
+            {
+
+                DISEÑO.Rows.Add(inicio, inicio.Month.ToString(), inicio.Year.ToString());
+
+                int domingo = (int)inicio.DayOfWeek;
+
+                if (domingo == 0)
+                {
+                    DISEÑO.Rows.Add("TOTAL", inicio.Month.ToString(), inicio.Year.ToString());
+                   
+                   
+                }
+
+
+                inicio = inicio.AddDays(1);
+
+
+            }
+            DISEÑO.Rows.Add("TOTAL", inicio.Month.ToString(), inicio.Year.ToString());//ULTIMO DIA DEL MES
+            DISEÑO.Rows.Add("TOTAL FINAL", inicio.Month.ToString(), inicio.Year.ToString());//TOTABILIZAR TODO EL MES
+
+
+
+
+            if (tipo == "Prestamos")
+            {
+
+                resumen.Clear();
+
+                foreach (DataRow item in selcajas.Rows)
+                {
+                    string caja, database, emp, bd, localidad, cajaletra;
+
+                    caja = item[2].ToString();//TLX11
+                    cajaletra = item[0].ToString();//CIS-TLX1-1
+                    database = item[1].ToString();
+                    bd = item[1].ToString();//SEMP2013_TLXX
+
+                    emp = item[1].ToString();//Monte RosHAY QUE SACARLA
+
+                    localidad = item[1].ToString().Substring(9);//TLA_3
+
+                
+
+                    if (radioTodos.Checked == true)//UNIFICAR LOS RESULTADOS POR
+                    {
+                       
+                        a = item[1].ToString();//SEMP2013_NAU_1
+
+                        if (a != b)
+                        {
+                            b = item[1].ToString();
+                            //Y agregamos nuestra primera informacion de sucursal
+                            DISEÑO.Columns.Add("Prestamos_" + bd.Substring(9) + "");
+
+                            distintas += 1;
+
+                            if (distintas == 1)
+                            {
+                                columna_dato += 3;
+                            }
+                            else
+                            {
+                                columna_dato += 1;
+                            }
+
+
+                            resultadoReporte.Clear();
+
+                            resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, bd, 1,
+                                                fechaInicio, fechaFinal, conn, unifica, porSemana, caja, emp, localidad, cajaletra);
+
+
+                            int i = 0;
+                            foreach (DataRow items in resultadoReporte.Rows)
+                            {
+
+                                DISEÑO.Rows[i][columna_dato] = items[9].ToString();
+                                DISEÑO.AcceptChanges();
+                                i = i + 1;
+                            }
+                            //POR SI NO OPERO EN TODO EL PERIODO 
+                            if (resultadoReporte.Rows.Count == 0)
+                            {
+                                for (int z = 0; z < DISEÑO.Rows.Count; z++)//totalDias
+                                {
+                                    DISEÑO.Rows[z][columna_dato] = "0.00";
+                                    DISEÑO.AcceptChanges();
+
+                                }
+
+                            }
+
+
+                        }
+
+
+                      
+                        
+                    }
+                }
+
+               dataGridView1.DataSource = DISEÑO;
+
+
+                var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Prestamos");
+
+              
+                worksheet.Cell("B2").Value = "REPORTE DE OPERACIONES DE PRESTAMOS";
+                worksheet.Cell("B3").Value = "TIPO DE REPORTE: ACUMULADO TODOS";
+                worksheet.Cell("B4").Value = "DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del") +
+                                                    " AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del");
+
+
+                //MIS ENCABEZADOS//
+               
+                int p = 2;
+                for (int i = 0; i < DISEÑO.Columns.Count; i++)
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+                    worksheet.Cell(6,p).Value = nombrecolumna;
+                    worksheet.Cell(6, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(6, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(6, p).Style.Font.Bold=true;
+                    worksheet.Cell(6, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(6, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(6, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(6, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+                //wb.Style.Border.RightBorderColor = XLColor.Red;
+                //wb.Style.Border.LeftBorderColor = XLColor.Red;
+                //wb.Style.Border.BottomBorderColor = XLColor.Red;
+                //recorremos la tabla
+                // worksheet.Range(7, 1, 7, 4).Merge().AddToNamed("Titles");
+                worksheet.Cell(7, 2).InsertTable(DISEÑO.AsEnumerable());
+
+                worksheet.Columns().AdjustToContents();//auto ajustables
+
+                workbook.SaveAs("c:\\SEMP2013\\excel.xlsx");
+
+
+
+                //CREAMOS EL EXCEL
+
+                //        //if (unifica == 1)
+                //        //{
+                //        //    if (a != b)
+                //        //    {
+                //        //        b = item[2].ToString();
+                //        //        //Y agregamos nuestra primera informacion de sucursal
+                //        //        DISEÑO.Columns.Add("Prestamos_" + bd.Substring(9) + "");
+                //        //        DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
+
+
+
+
+
+                //        //        distintas += 1;
+
+                //        //        if (distintas == 1)
+                //        //        {
+                //        //            columna_dato += 3;
+                //        //        }
+                //        //        else
+                //        //        {
+                //        //            columna_dato += 2;
+                //        //        }
+                //        //    }
+
+                //        //}
+                //        //else
+                //        //{
+
+
+                //        //    f = database;
+
+
+                //        //    if (f == g)
+                //        //    {
+                //        //        //Y agregamos nuestra primera informacion de sucursal
+                //        //        DISEÑO.Columns.Add("" + caja + "");
+                //        //        columna_dato += 1;
+
+                //        //    }
+
+
+                //        //    if (string.IsNullOrEmpty(g))
+                //        //    {
+                //        //        //Y agregamos nuestra primera informacion de sucursal
+                //        //        DISEÑO.Columns.Add("" + caja + "");
+
+                //        //        columna_dato += 3;
+                //        //        g = f;
+                //        //    }
+
+
+                //        //    if (f != g)
+                //        //    {
+                //        //        DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                //        //        DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+                //        //        //Y agregamos nuestra primera informacion de sucursal
+                //        //        DISEÑO.Columns.Add("" + caja + "");
+
+                //        //        g = f;
+                //        //        columna_dato += 3;
+
+
+
+                //        //    }
+
+
+
+
+
+
+                //        //}
+
+                //        //resultadoReporte.Clear();
+
+                //        //resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, database, 1,
+                //        //                    fechaInicio, fechaFinal, conn, unifica, porSemana, caja, emp, localidad, cajaletra);
+                //        //////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                //        /////
+                //        //int i = 0;
+                //        //foreach (DataRow items in resultadoReporte.Rows)
+                //        //{
+                //        //    DISEÑO.Rows[i][columna_dato] = items[9].ToString();
+                //        //    DISEÑO.AcceptChanges();
+                //        //    i = i + 1;
+                //        //}
+
+                //        //if (resultadoReporte.Rows.Count == 0)
+                //        //{
+                //        //    for (int z = 0; z < totalDias; z++)
+                //        //    {
+                //        //        DISEÑO.Rows[z][columna_dato] = "0.00";
+                //        //        DISEÑO.AcceptChanges();
+
+                //        //    }
+
+                //        //}
+
+
+
+                //    }
+
+                //    //if (unifica != 1)
+                //    //{
+                //    //    //Para la ultima sucursal se agregan las columnas
+                //    //    DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                //    //    DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+                //    //}
+                //    //resumen = DISEÑO;
+
+                //    //AHORA LA SUMA DE CADA UNO DE LOS BLOQUES
+
+
+            }
+
+
+
+                    //if (tipoReporte == "Notas de Pago")
+                    //{
+
+
+
+                    //    resumen.Clear();
+
+                    //    foreach (DataRow item in cajasSeleccionadas.Rows)
+                    //    {
+                    //        string caja, database, emp, bd, localidad, cajaletra;
+
+                    //        caja = item[0].ToString();//TLX11
+                    //        cajaletra = item[1].ToString();//CIS-TLX1-1
+                    //        database = item[2].ToString();
+                    //        bd = item[2].ToString();//SEMP2013_TLXX
+                    //        emp = item[3].ToString();//Monte Ros
+                    //        localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    //        c = item[0].ToString();
+                    //        a = item[2].ToString();
+
+                    //        if (unifica == 1)
+                    //        {
+                    //            if (a != b)
+                    //            {
+                    //                b = item[2].ToString();
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Iva_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
+
+
+
+
+
+                    //                distintas += 1;
+
+                    //                if (distintas == 1)
+                    //                {
+                    //                    columna_dato += 3;
+                    //                }
+                    //                else
+                    //                {
+                    //                    columna_dato += 4;
+                    //                }
+                    //            }
+
+                    //        }
+                    //        else
+                    //        {
+
+
+                    //            f = database;
+
+
+                    //            if (f == g)
+                    //            {
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                    //                DISEÑO.Columns.Add("IVA_" + caja + "");
+                    //                DISEÑO.Columns.Add("Total_" + caja + "");
+                    //                columna_dato += 3;
+
+                    //            }
+
+
+                    //            if (string.IsNullOrEmpty(g))
+                    //            {
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                    //                DISEÑO.Columns.Add("IVA_" + caja + "");
+                    //                DISEÑO.Columns.Add("Total_" + caja + "");
+
+                    //                columna_dato += 3;
+                    //                g = f;
+                    //            }
+
+
+                    //            if (f != g)
+                    //            {
+                    //                DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + caja + "");
+                    //                DISEÑO.Columns.Add("IVA_" + caja + "");
+                    //                DISEÑO.Columns.Add("Total_" + caja + "");
+
+                    //                g = f;
+                    //                columna_dato += 5;
+
+
+
+                    //            }
+
+
+
+
+
+
+                    //        }
+
+                    //        resultadoReporte.Clear();
+
+                    //        resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1, 2018, database, 1, fechaInicio, fechaFinal,
+                    //               conn, unifica, porSemana, caja, emp, localidad, cajaletra);
+
+                    //        ////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                    //        ///
+                    //        int i = 0;
+                    //        foreach (DataRow items in resultadoReporte.Rows)
+                    //        {
+                    //            DISEÑO.Rows[i][columna_dato] = items[9].ToString();
+                    //            DISEÑO.Rows[i][columna_dato + 1] = items[10].ToString();
+                    //            DISEÑO.Rows[i][columna_dato + 2] = items[11].ToString();
+                    //            DISEÑO.AcceptChanges();
+                    //            i = i + 1;
+                    //        }
+
+                    //        if (resultadoReporte.Rows.Count == 0)
+                    //        {
+                    //            for (int z = 0; z < totalDias; z++)
+                    //            {
+                    //                DISEÑO.Rows[z][columna_dato] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 1] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 2] = "0.00";
+                    //                DISEÑO.AcceptChanges();
+
+                    //            }
+
+                    //        }
+
+
+
+                    //    }
+
+                    //    if (unifica != 1)
+                    //    {
+                    //        //Para la ultima sucursal se agregan las columnas
+                    //        DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    //        DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+                    //    }
+                    //    resumen = DISEÑO;
+
+                    //    //AHORA LA SUMA DE CADA UNO DE LOS BLOQUES
+
+
+
+
+
+                    //    #region MyRegion
+                    //    //foreach (DataRow item in cajasSeleccionadas.Rows)
+                    //    //{
+
+                    //    //    string caja, database, emp, bd, localidad, cajaletra;
+                    //    //    caja = item[0].ToString();//TLX11
+                    //    //    cajaletra = item[1].ToString();//CIS-TLX1-1
+                    //    //    database = item[2].ToString();
+                    //    //    bd = item[2].ToString();//SEMP2013_TLXX
+                    //    //    emp = item[3].ToString();//Monte Ros
+                    //    //    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    //    //    resultadoReporte.Clear();
+
+                    //    //    resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1,2018,database,1,fechaInicio,fechaFinal,
+                    //    //        conn,unifica,porSemana,caja,emp,localidad, cajaletra);
+
+
+                    //    //    foreach (DataRow r in resultadoReporte.Rows)
+                    //    //    {
+
+
+                    //    //        resumen.Rows.Add(r[0].ToString(), r[1].ToString(), r[2].ToString()
+                    //    //                        , r[3].ToString(), r[4].ToString(), r[5].ToString(), r[6].ToString(), r[7].ToString()
+                    //    //                        , r[8].ToString(), r[9].ToString(), r[10].ToString(), r[11].ToString());
+                    //    //    }
+
+
+
+
+                    //    //}
+
+
+                    //    #endregion
+
+                    //}
+
+
+                    //if (tipoReporte == "Remisiones")
+                    //{
+
+                    //    resumen.Clear();
+
+
+
+
+                    //    foreach (DataRow item in cajasSeleccionadas.Rows)
+                    //    {
+                    //        string caja, database, emp, bd, localidad, cajaletra;
+
+                    //        caja = item[0].ToString();//TLX11
+                    //        cajaletra = item[1].ToString();//CIS-TLX1-1
+                    //        database = item[2].ToString();
+                    //        bd = item[2].ToString();//SEMP2013_TLXX
+                    //        emp = item[3].ToString();//Monte Ros
+                    //        localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    //        c = item[0].ToString();
+                    //        a = item[2].ToString();
+
+                    //        if (unifica == 1)
+                    //        {
+                    //            if (a != b)
+                    //            {
+                    //                b = item[2].ToString();
+                    //                //Y agregamos nuestra primera informacion de sucursal
+
+                    //                //Subtotal, ivaTotal, total,
+                    //                //subtotalParte, ivaParte, totalParte);
+
+
+                    //                DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("Espacio_" + distintas.ToString() + "");
+
+
+
+
+
+                    //                distintas += 1;
+
+                    //                if (distintas == 1)
+                    //                {
+                    //                    columna_dato += 3;
+                    //                }
+                    //                else
+                    //                {
+                    //                    columna_dato += 7;
+                    //                }
+                    //            }
+
+                    //        }
+                    //        else
+                    //        {
+
+
+                    //            f = database;
+
+
+                    //            if (f == g)
+                    //            {
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+                    //                columna_dato += 7;
+
+                    //            }
+
+
+                    //            if (string.IsNullOrEmpty(g))
+                    //            {
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+
+                    //                columna_dato += 3;
+                    //                g = f;
+                    //            }
+
+
+                    //            if (f != g)
+                    //            {
+
+                    //                //Y agregamos nuestra primera informacion de sucursal
+                    //                DISEÑO.Columns.Add("SubTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotal_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("Total_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("SubTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("IvaTotalParte_" + bd.Substring(9) + "");
+                    //                DISEÑO.Columns.Add("TotalParte_" + bd.Substring(9) + "");
+
+                    //                DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    //                //DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+
+
+                    //                g = f;
+                    //                columna_dato += 7;
+
+
+
+                    //            }
+
+
+
+
+
+
+                    //        }
+
+                    //        resultadoReporte.Clear();
+
+                    //        resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
+                    //                               fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
+
+
+                    //        ////CONSTRUCCION DEL MODELO DE DATATABLE PARA LA PRESENTACION
+                    //        ///
+                    //        int i = 0;
+                    //        foreach (DataRow items in resultadoReporte.Rows)
+                    //        {
+                    //            DISEÑO.Rows[i][columna_dato] = items[9].ToString();//3
+                    //            DISEÑO.Rows[i][columna_dato + 1] = items[10].ToString();//4
+                    //            DISEÑO.Rows[i][columna_dato + 2] = items[11].ToString();//5
+                    //            DISEÑO.Rows[i][columna_dato + 3] = items[12].ToString();//6
+                    //            DISEÑO.Rows[i][columna_dato + 4] = items[13].ToString();//7
+                    //            DISEÑO.Rows[i][columna_dato + 5] = items[14].ToString();//8
+                    //            DISEÑO.AcceptChanges();
+                    //            i = i + 1;
+                    //        }
+
+                    //        if (resultadoReporte.Rows.Count == 0)
+                    //        {
+                    //            for (int z = 0; z < totalDias; z++)
+                    //            {
+                    //                DISEÑO.Rows[z][columna_dato] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 1] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 2] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 3] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 4] = "0.00";
+                    //                DISEÑO.Rows[z][columna_dato + 5] = "0.00";
+                    //                DISEÑO.AcceptChanges();
+
+                    //            }
+
+                    //        }
+
+
+
+                    //    }
+
+
+
+                    //    if (unifica != 1)
+                    //    {
+                    //        //Para la ultima sucursal se agregan las columnas
+                    //        DISEÑO.Columns.Add("Total_" + g.Substring(9) + "");
+                    //        DISEÑO.Columns.Add("Espacio_" + g.Substring(9) + "");
+
+
+                    //    }
+                    //    resumen = DISEÑO;
+
+
+
+
+
+
+                    //    #region MyRegion
+
+
+                    //    //resultRemisionesPorCaja.Rows.Add(fecha, localidad, database.Substring(9), database,
+                    //    //              fecha.Month.ToString(), fecha.Year.ToString(), cajaletra, caja, emp, Subtotal, ivaTotal, total,
+                    //    //              subtotalParte, ivaParte, totalParte);
+
+
+                    //    //foreach (DataRow item in cajasSeleccionadas.Rows)
+                    //    //{
+
+                    //    //    string caja, database, emp, bd, localidad, cajaletra;
+                    //    //    caja = item[0].ToString();//TLX11
+                    //    //    cajaletra = item[1].ToString();//CIS-TLX1-1
+                    //    //    database = item[2].ToString();
+                    //    //    bd = item[2].ToString();//SEMP2013_TLXX
+                    //    //    emp = item[3].ToString();//Monte Ros
+                    //    //    localidad = item[4].ToString();//Tula monte ros
+
+
+
+                    //    //    resultadoReporte.Clear();
+
+
+                    //    //    resultadoReporte.Clear();
+
+                    //    //    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, database, 1,
+                    //    //                        fechaInicio, fechaFinal, conn, unifica, porSemana, caja, iva, parte, emp, localidad, cajaletra);
+
+
+                    //    //    foreach (DataRow r in resultadoReporte.Rows)
+                    //    //    {
+
+
+
+
+                    //    //        resumen.Rows.Add(r[0].ToString(),
+                    //    //            r[1].ToString(),
+                    //    //            r[2].ToString(),
+                    //    //            r[3].ToString(),
+                    //    //            r[4].ToString(),
+                    //    //            r[5].ToString(),
+                    //    //            r[6].ToString(),
+                    //    //            r[7].ToString(),
+                    //    //            r[8].ToString(),
+                    //    //            decimal.Parse(r[9].ToString()).ToString("N2"),
+                    //    //            decimal.Parse(r[10].ToString()).ToString("N2"),
+                    //    //            decimal.Parse(r[11].ToString()).ToString("N2"),
+                    //    //            decimal.Parse(r[12].ToString()).ToString("N2"),
+                    //    //            decimal.Parse(r[13].ToString()).ToString("N2"),
+                    //    //            decimal.Parse(r[14].ToString()).ToString("N2")
+                    //    //            );
+                    //    //    }
+
+
+
+
+                    //    //} 
+                    //    #endregion
+
+
+
+                    //}
+
+
+                    #endregion
+
+
+
+
+
+        }
+
+        private void AcumuladoTodosPrestamo()
+        {
+            return;
+        }
 
 
         private void treeView1_MouseDoubleClick(object sender, MouseEventArgs e)
