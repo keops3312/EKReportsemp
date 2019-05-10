@@ -39,6 +39,7 @@
             this.btnPrestamos = new DevComponents.DotNetBar.ButtonX();
             this.btnClose = new DevComponents.DotNetBar.ButtonX();
             this.groupPanel1 = new DevComponents.DotNetBar.Controls.GroupPanel();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.labelX2 = new DevComponents.DotNetBar.LabelX();
             this.date2 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
@@ -49,13 +50,12 @@
             this.radioCaja = new System.Windows.Forms.RadioButton();
             this.radioTodos = new System.Windows.Forms.RadioButton();
             this.groupPanel2 = new DevComponents.DotNetBar.Controls.GroupPanel();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.groupPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.date2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.date1)).BeginInit();
             this.groupPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // treeView1
@@ -143,6 +143,7 @@
             this.btnPrestamos.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
             this.btnPrestamos.TabIndex = 10;
             this.btnPrestamos.Text = "Reporte de Operaciones de Prestamos";
+            this.btnPrestamos.Click += new System.EventHandler(this.btnPrestamos_Click);
             // 
             // btnClose
             // 
@@ -210,6 +211,14 @@
             this.groupPanel1.StyleMouseOver.CornerType = DevComponents.DotNetBar.eCornerType.Square;
             this.groupPanel1.TabIndex = 13;
             this.groupPanel1.Text = "Configuracion de Reporte";
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(58, 353);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.Size = new System.Drawing.Size(368, 130);
+            this.dataGridView1.TabIndex = 9;
             // 
             // pictureBox1
             // 
@@ -431,14 +440,6 @@
             this.groupPanel2.TabIndex = 14;
             this.groupPanel2.Text = "Seleccione Reporte";
             // 
-            // dataGridView1
-            // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(58, 353);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(368, 130);
-            this.dataGridView1.TabIndex = 9;
-            // 
             // PanelV2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -458,11 +459,11 @@
             this.Load += new System.EventHandler(this.PanelV2Form_Load);
             this.groupPanel1.ResumeLayout(false);
             this.groupPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.date2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.date1)).EndInit();
             this.groupPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }

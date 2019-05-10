@@ -179,10 +179,10 @@ namespace EKReportsemp.WinForms.Classes
         public DataTable PrestamosXdiaResumen(int month, int year,
             string database, int opc, DateTime fechaInicio,
             DateTime fechaFinal, string cnx, int unifica, int rangoSemana, 
-            string caja,string emp, string loc,string cajaNom)//unifica 1=si 2=no--- rangoSemana 1=si 2=no
+            string caja,string emp, string loc,string cajaNom,int porEmpresa=0)//unifica 1=si 2=no--- rangoSemana 1=si 2=no
         {
 
-            string sql;
+            string sql="";
           
             decimal prestamo;
             string cajaLetra;
@@ -204,7 +204,7 @@ namespace EKReportsemp.WinForms.Classes
             resultPrestamosPorCaja.Columns.Add("Empresa");
             resultPrestamosPorCaja.Columns.Add("Prestamo");
 
-
+            
           
 
             //SI LO QUIERE UNIFICADO//
@@ -217,13 +217,16 @@ namespace EKReportsemp.WinForms.Classes
                 while (inicio <= fechaFinal)
                 {
 
+                    //SI REQUIERE LA SUMA DE TODAS LAS SUCURSALES POR EMPRESA
 
-                    sql = "USE " + database + "  " +
-                     "SELECT  sum(contratos.prestamo) as Prestamo," +
-                     " contratos.fechacons as Fecha FROM  contratos " +
-                            " WHERE contratos.Fechacons= '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
-                                  " and contratos.Status<>'CANCELADO' group by contratos.FechaCons" +
-                                             "";
+               
+                     sql = "USE " + database + "  " +
+                                            "SELECT  sum(contratos.prestamo) as Prestamo," +
+                                            " contratos.fechacons as Fecha FROM  contratos " +
+                                                   " WHERE contratos.Fechacons= '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
+                                                         " and contratos.Status<>'CANCELADO' group by contratos.FechaCons" +
+                                                                    "";
+
 
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
                     baseResult = new DataTable();
@@ -486,7 +489,7 @@ namespace EKReportsemp.WinForms.Classes
         public DataTable NotasDePagoXdiaResumen(int month, int year, string database,
             int opc, DateTime fechaInicio,
             DateTime fechaFinal, string cnx, int unifica, int rangoSemana, string caja
-            , string emp, string loc, string cajaNom)
+            , string emp, string loc, string cajaNom, int porEmpresa = 0)
         {
 
             string sql;
@@ -516,11 +519,19 @@ namespace EKReportsemp.WinForms.Classes
 
 
 
-            //SI LO QUIERE UNIFICADO//
+            //SI LO QUIERE UNIFICADO PARA EMPRESA O POR SUCURSAL//
             if (unifica == 1)
             {
                 inicio = fechaInicio;
+                decimal acumuladoXsemanaSubtotal = 0;
+                decimal acumuladoXsemanaIva = 0;
+                decimal acumuladoXsemanaTotal = 0;
 
+                decimal AcumuladoXmesSubTotal = 0;
+                decimal AcumuladoXmesIva = 0;
+                decimal AcumuladoXmesTotal = 0;
+
+                
                 while (inicio <= fechaFinal)
                 {
 
@@ -536,6 +547,13 @@ namespace EKReportsemp.WinForms.Classes
                     baseResult = new DataTable();
                     baseResult.Clear();
                     sqlDataAdapter.Fill(baseResult);
+
+
+                    //YA TENGO LOS ACUMULADOS AHORA VAMOS A SEPARARLO POR SEMANA
+
+                    int domingo = (int)inicio.DayOfWeek;
+
+
                     if (baseResult.Rows.Count > 0)
                     {
 
@@ -562,6 +580,33 @@ namespace EKReportsemp.WinForms.Classes
                             fecha.Month.ToString(), fecha.Year.ToString(), caja, cajaNom,emp, subtotal, iva,
                             total);
 
+
+                         acumuladoXsemanaSubtotal += subtotal;
+                         acumuladoXsemanaIva += iva;
+                         acumuladoXsemanaTotal += total;
+
+                         AcumuladoXmesSubTotal += subtotal;
+                         AcumuladoXmesIva += iva;
+                         AcumuladoXmesTotal += total;
+
+
+
+                        if (domingo == 0)
+                        {
+
+                            resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                 database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                   caja, cajaNom, emp, acumuladoXsemanaSubtotal,
+                                                   acumuladoXsemanaIva,
+                                                   acumuladoXsemanaTotal);
+
+                            acumuladoXsemanaSubtotal = 0;
+                            acumuladoXsemanaIva = 0;
+                            acumuladoXsemanaTotal = 0;
+                        }
+
+
+
                     }
                     else
                     {
@@ -569,6 +614,24 @@ namespace EKReportsemp.WinForms.Classes
                         resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9), database,
                            inicio.Month.ToString(), inicio.Year.ToString(), caja, cajaNom, emp, 0, 0,
                            0);
+
+
+
+
+                        if (domingo == 0)
+                        {
+
+                            resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                 database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                   caja, cajaNom, emp, acumuladoXsemanaSubtotal,
+                                                   acumuladoXsemanaIva,
+                                                   acumuladoXsemanaTotal);
+
+                            acumuladoXsemanaSubtotal = 0;
+                            acumuladoXsemanaIva = 0;
+                            acumuladoXsemanaTotal = 0;
+                        }
+
                     }
 
 
@@ -576,6 +639,22 @@ namespace EKReportsemp.WinForms.Classes
 
 
                 }
+
+                //AGREGAMOS EL ULTIMO TOTAL
+                resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                  caja, cajaNom, emp, acumuladoXsemanaSubtotal,
+                                                  acumuladoXsemanaIva,
+                                                  acumuladoXsemanaTotal);
+
+                resultNotasDePagoPorCaja.Rows.Add(inicio, loc, database.Substring(9),
+                                                 database, inicio.Month.ToString(), inicio.Year.ToString(),
+                                                   caja, cajaNom, emp, AcumuladoXmesSubTotal,
+                                                   AcumuladoXmesIva,
+                                                   AcumuladoXmesTotal);
+
+
+
             }
             else
             {

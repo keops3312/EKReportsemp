@@ -6,11 +6,13 @@ namespace EKReportsemp.WinForms.Classes
 
     #region Libraries (Librerias)
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
     using System.Data.SqlClient;
     using System.Linq;
     using EKReportsemp.WinForms.Context;
+    using EKReportsemp.WinForms.Models;
     #endregion
 
 
@@ -249,11 +251,99 @@ namespace EKReportsemp.WinForms.Classes
             return resultado;
 
         }
+
+
+        //LISTA SERIE DE EMPRESAS REGISTRADAS POR LOCALIDAD
+        public List<Models.Empresas> empresas()
+        {
+            List<Models.Empresas> empresas = new List<Models.Empresas>();
+
+            string conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+            SqlConnection cn = new SqlConnection(conn);
+
+            SqlDataAdapter cmd = new SqlDataAdapter(" " +
+                " select distinct(empresa) " +
+                  "  from Localidades where CONCEPTO='CASA DE EMPEÑO'", cn);
+            DataTable resultado = new DataTable();
+            cmd.Fill(resultado);
+
+           
+            foreach (DataRow item in resultado.Rows)
+            {
+                empresas.Add(new Models.Empresas
+                {
+                    Empresa=item[0].ToString(),
+                });
+            }
+
+            return empresas;
+
+        }
+
+        //LISTA SERIE DE LOCALIDADES REGISTRADAS EN LOCALIDADES
+        public List<Models.SucursalesBD> sucursales()
+        {
+            List<Models.SucursalesBD> sucursales = new List<Models.SucursalesBD>();
+
+            string conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+            SqlConnection cn = new SqlConnection(conn);
+
+            SqlDataAdapter cmd = new SqlDataAdapter(" " +
+                " select BD " +
+                  "  from Localidades where CONCEPTO='CASA DE EMPEÑO'", cn);
+            DataTable resultado = new DataTable();
+            cmd.Fill(resultado);
+
+
+            foreach (DataRow item in resultado.Rows)
+            {
+                sucursales.Add(new Models.SucursalesBD
+                {
+                    sucursalBD = item[0].ToString(),
+                });
+            }
+
+            return sucursales;
+
+        }
+
+
+
+
+        public List<SucursalesBD> listaSucursalesEmpresa(string empresa)
+        {
+
+
+            List<SucursalesBD> sucursal = new List<SucursalesBD>();
+
+            string conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+            SqlConnection cn = new SqlConnection(conn);
+
+            SqlDataAdapter cmd = new SqlDataAdapter(" " +
+                " select BD " +
+                  "  from Localidades where Empresa='" + empresa + "' "+
+                    " AND CONCEPTO ='CASA DE EMPEÑO'", cn);
+            DataTable resultado = new DataTable();
+            cmd.Fill(resultado);
+
+
+            foreach (DataRow item in resultado.Rows)
+            {
+                sucursal.Add(new SucursalesBD
+                {
+                    sucursalBD = item[0].ToString(),
+                });
+            }
+
+            return sucursal;
+
+        }
+
        
         #endregion
 
 
-#endregion
+        #endregion
 
 
 
