@@ -403,16 +403,21 @@ namespace EKReportsemp.WinForms.Views
             //backgroundWorker1.RunWorkerAsync();
             if (seleccion == "Prestamo")
             {
-                AcumuladoTodosPrestamo(date1.Value, date2.Value, "TODOS");
+                GenericoPrestamo(date1.Value, date2.Value);
             }
 
 
 
             if (seleccion == "NotasDePago")
             {
-                GenricoNotasdePago(date1.Value, date2.Value);
+                GenericoNotasdePago(date1.Value, date2.Value);
             }
 
+
+            if (seleccion == "Remisiones")
+            {
+                GenericoNotasdeRemision(date1.Value, date2.Value);
+            }
 
 
 
@@ -1252,7 +1257,7 @@ namespace EKReportsemp.WinForms.Views
 
         }
 
-        private void AcumuladoTodosPrestamo(DateTime fechaInicio, DateTime fechaFinal, string seleccion)
+        private void GenericoPrestamo(DateTime fechaInicio, DateTime fechaFinal)
         {
 
             conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
@@ -1306,7 +1311,18 @@ namespace EKReportsemp.WinForms.Views
 
             /*0 Cero el datatable contenedor de resultado de prestamos y la variable */
             DataTable resultadoPrestamos = new DataTable();
-            /*1 primero un var que contenga las lista de las diferentes empresas*/
+
+            /*1 saber que opcion escojio*/
+
+
+            /*acumulado 
+             * TODO(es decir sin importar la empresa se suma TODO
+             * Empresa(los totales de las cajas por empresa)
+             * POR SUCURSAL(LOS TOTALES DE LAS CAJAS POR SUCURSAL
+             
+             pero haciendo enfasis de todo lo que se selecciono*/
+
+            /*1 primero un var que contenga las lista la tabla*/
             List<seleccionReporte> seleccionReporteList = new List<seleccionReporte>();
             foreach (DataRow row in selcajas.Rows)
             {
@@ -1325,19 +1341,265 @@ namespace EKReportsemp.WinForms.Views
 
             if (radioTodos.Checked == true)
             {
-                var listaEmpresas = seleccionReporteList.Select(cual => cual.empresa).
-                    Distinct().ToList();
 
+                var listaAOperar = seleccionReporteList.Select(pr => pr.bd).Distinct().ToList();
 
-                //var listaEmpresas = buscarLocalidad.empresas();
+                resultadoPrestamos.Clear();
 
-                /*2 segundo recorremos una por una y de ahi ...*/
-                foreach (var empresa in listaEmpresas)
+               
+                DISEÑO.Columns.Add("Total", Type.GetType("System.Decimal"));//.Substring(9)
+
+                /*COMO ES TODO VAMOS A SUMAR TODAS LAS SUCURSALES SIN IMPORTAR LA MARCA*/
+                foreach (var sucursal in listaAOperar)
                 {
-                    var listaSucursales = buscarLocalidad.listaSucursalesEmpresa(empresa);
-                    /*3 tercero ahora si recorro cada una de las sucursales de la empresa seleccionada*/
-                    resultadoPrestamos.Clear();
 
+
+
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, sucursal, 1,
+                                        fechaInicio, fechaFinal, conn, 1, porSemana, "", "", "", "", 1);
+
+                    //AHORA SUMO TODO LO QUE ENCUENTRE POR SUCURSAL-EMPRESA
+                    if (resultadoReporte.Rows.Count > 0)
+                    {
+
+                        int i = 0;
+                        foreach (DataRow items in resultadoReporte.Rows)
+                        {
+
+                            string x = "0";
+                            string u= "0";
+                            decimal  total = 0;
+
+
+                            x = items[9].ToString();//total
+                           
+
+
+                            u = DISEÑO.Rows[i][3].ToString();
+                          
+
+
+
+                            if (string.IsNullOrEmpty(u))
+                            {
+                                u = "0";
+                            }
+                          
+
+
+                            
+
+                            total = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+
+
+                            DISEÑO.Rows[i][3] = decimal.Parse(total.ToString()).ToString("N2");
+                           
+                          
+
+                            DISEÑO.AcceptChanges();
+                            i = i + 1;
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+                #region MyRegion
+
+                ///*AHORA EL EXCEL*/
+
+                var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("PrestamosGlobales");
+                worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet.PageSetup.Margins.Top = 1;
+                worksheet.PageSetup.Margins.Bottom = 1;
+                worksheet.PageSetup.Margins.Left = 1;
+                worksheet.PageSetup.Margins.Right = 1;
+                worksheet.PageSetup.CenterHorizontally = true;
+                worksheet.PageSetup.CenterVertically = true;
+
+
+                var listaInfo = seleccionReporteList.Select(li => li.empresa).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Left.AddText("Empresas Calculadas");
+                worksheet.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo)
+                {
+                    worksheet.PageSetup.Header.Left.AddText(item.Substring(0, 9));
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+                worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: PRESTAMOS GLOBALES");
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText("del " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText(" al " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+
+                var listaInfo2 = seleccionReporteList.Select(li => li.bd).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Right.AddText("Sucursales Calculadas");
+                worksheet.PageSetup.Header.Right.AddNewLine();
+                foreach (var item in listaInfo2)
+                {
+                    worksheet.PageSetup.Header.Right.AddText(item.Substring(9, item.Length - 9));
+                    worksheet.PageSetup.Header.Right.AddNewLine();
+
+                }
+
+
+                //MIS ENCABEZADOS//
+
+                int p = 2;
+                for (int i = 0; i < DISEÑO.Columns.Count; i++)
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+                    if (nombrecolumna.Length > 10)
+                    {
+                        nombrecolumna = nombrecolumna.Substring(0, 10);
+                    }
+
+                    worksheet.Cell(3, p).Value = nombrecolumna;
+                    worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(3, p).Style.Font.Bold = true;
+                    worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+
+
+                int fila = 4;
+                int columna = 2;
+                int estaEnLineaEspecial = 0;
+
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    for (int y = 0; y < DISEÑO.Columns.Count; y++)
+                    {
+                        string campo;
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                        {
+                            estaEnLineaEspecial = 1;
+                        }
+
+                        if (estaEnLineaEspecial == 1)
+                        {
+
+
+
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                            worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                            estaEnLineaEspecial = 1;
+                        }
+                        else
+                        {
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                        }
+
+                        columna += 1;
+
+                    }
+
+
+
+                    estaEnLineaEspecial = 0;
+                    columna = 2;
+                    fila += 1;
+
+
+                }
+
+
+                worksheet.Columns().AdjustToContents();
+
+                workbook.SaveAs("c:\\SEMP2013\\PrestamosGlobales.xlsx");
+
+                MessageBox.Show("Realizado");
+
+
+                #endregion
+
+          
+
+            }
+
+
+
+            if (radioEmpresa.Checked == true)
+            {
+                var listaAOperar = seleccionReporteList.Select(pi => pi.empresa).Distinct().ToList();
+
+                resultadoPrestamos.Clear();
+
+
+               
+
+
+                /*COMO ES TODO VAMOS A SUMAR TODAS LAS SUCURSALES SIN IMPORTAR LA MARCA*/
+                foreach (var empresa in listaAOperar)
+                {
+                    var sucursalesXempresa = buscarLocalidad.listaSucursalesEmpresa(empresa);
 
                     //Y agregamos nuestra primera informacion de sucursal
                     distintas += 1;
@@ -1349,19 +1611,16 @@ namespace EKReportsemp.WinForms.Views
                     {
                         columna_dato += 1;
                     }
-                    DISEÑO.Columns.Add("" + empresa + "", Type.GetType("System.Decimal"));//.Substring(9)
-                                                                                          //DISEÑO.Columns[columna_dato].DefaultValue = 0;
+                    
+                    DISEÑO.Columns.Add("Total...-" + distintas, Type.GetType("System.Decimal"));
 
-                    foreach (var sucursal in listaSucursales)
+                    foreach (var sucursal in sucursalesXempresa)
                     {
-
-
-
 
                         resultadoReporte.Clear();
 
                         resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, sucursal.sucursalBD, 1,
-                                            fechaInicio, fechaFinal, conn, unifica, porSemana, "", "", "", "", 1);
+                                            fechaInicio, fechaFinal, conn, 1, porSemana, "", "", "", "", 1);
 
                         //POR SI NO OPERO EN TODO EL PERIODO 
                         if (resultadoReporte.Rows.Count > 0)
@@ -1371,18 +1630,35 @@ namespace EKReportsemp.WinForms.Views
                             foreach (DataRow items in resultadoReporte.Rows)
                             {
 
-                                string x = "0", y = "0";
-                                decimal z = 0;
-                                x = DISEÑO.Rows[i][columna_dato].ToString();
-                                y = items[9].ToString();
-                                if (string.IsNullOrEmpty(x))
+                                string x = "0";
+                                string u= "0";
+                                decimal total = 0;
+
+
+                                x = items[9].ToString();//subtotal
+                               
+
+
+                                u = DISEÑO.Rows[i][columna_dato].ToString();
+                               
+
+
+
+                                if (string.IsNullOrEmpty(u))
                                 {
-                                    x = "0";
+                                    u = "0";
                                 }
+                              
 
-                                z = Convert.ToDecimal(x.ToString()) + Convert.ToDecimal(y.ToString());
 
-                                DISEÑO.Rows[i][columna_dato] = decimal.Parse(z.ToString()).ToString("N2");
+                                total = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+                               
+
+
+
+                                DISEÑO.Rows[i][columna_dato] = decimal.Parse(total.ToString()).ToString("N2");
+                               
 
                                 DISEÑO.AcceptChanges();
                                 i = i + 1;
@@ -1392,241 +1668,998 @@ namespace EKReportsemp.WinForms.Views
                         }
 
 
-
-
-
-
-
                     }
-
-
 
 
                 }
 
-                /*ahora obetenemos el conteo del numero de mrpesa que son*/
-                int cantidadEmpresas = listaEmpresas.Count;
+                /*AHORA EL EXCEL*/
+
+                var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("PrestamosoXEmpresa");
+                /*luego sumamos todo a partir de la ultima fila*/
+                var worksheet2 = workbook.Worksheets.Add("PrestamosXEmpresaResumen");
+
+                #region Libro Resumen
+                worksheet2.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet2.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet2.PageSetup.Margins.Top = 1;
+                worksheet2.PageSetup.Margins.Bottom = 1;
+                worksheet2.PageSetup.Margins.Left = 1;
+                worksheet2.PageSetup.Margins.Right = 1;
+                worksheet2.PageSetup.CenterHorizontally = true;
+                worksheet2.PageSetup.CenterVertically = true;
 
 
-            }
-
-
-
-
-
-
-
-
-
-            ///*AHORA EL EXCEL*/
-
-            var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("PrestamosGlobales");
-            worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
-            worksheet.PageSetup.FitToPages(1, 1);
-            //ESTA EN PULGADAS
-            worksheet.PageSetup.Margins.Top = 1;
-            worksheet.PageSetup.Margins.Bottom = 1;
-            worksheet.PageSetup.Margins.Left = 1;
-            worksheet.PageSetup.Margins.Right = 1;
-            worksheet.PageSetup.CenterHorizontally = true;
-            worksheet.PageSetup.CenterVertically = true;
-
-
-            worksheet.PageSetup.Header.Left.AddText("TIPO DE REPORTE: ACUMULADO TODOS");
-            worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: ACUMULADO TODOS");
-
-            worksheet.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
-            worksheet.PageSetup.Header.Right.AddNewLine();
-            worksheet.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
-
-            worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
-            worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
-            worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
-
-
-            //worksheet.Cell("B2").Value = "REPORTE DE OPERACIONES DE PRESTAMOS";
-            //worksheet.Cell("B3").Value = "TIPO DE REPORTE 'ACUMULADO TODOS'";
-            //worksheet.Cell("B4").Value = "DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del") +
-            //                                   " AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del");
-
-            //worksheet.Range("B2:H2").Merge();
-            //worksheet.Range("B3:H3").Merge();
-            //worksheet.Range("B4:H4").Merge();
-
-
-            //MIS ENCABEZADOS//
-
-            int p = 2;
-            for (int i = 0; i < DISEÑO.Columns.Count; i++)
-            {
-                string nombrecolumna = DISEÑO.Columns[i].ColumnName;
-                if (nombrecolumna.Length > 10)
+                var listaInfo3 = seleccionReporteList.Select(list => list.bd).Distinct().ToList();
+                worksheet2.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet2.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo3)
                 {
-                    nombrecolumna = nombrecolumna.Substring(0, 10);
+                    worksheet2.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet2.PageSetup.Header.Left.AddNewLine();
+
                 }
 
-                worksheet.Cell(6, p).Value = nombrecolumna;
-                worksheet.Cell(6, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
-                worksheet.Cell(6, p).Style.Font.FontColor = XLColor.White;
-                worksheet.Cell(6, p).Style.Font.Bold = true;
-                worksheet.Cell(6, p).Style.Font.FontSize = 16;
-                worksheet.Cell(6, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                worksheet.Cell(6, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                worksheet.Cell(6, p).Style.Border.BottomBorderColor = XLColor.Black;
-                p++;
-            }
 
 
 
-            int fila = 7;
-            int columna = 2;
-            int estaEnLineaEspecial = 0;
-            decimal suma_derecho = 0;
-            for (int i = 0; i < DISEÑO.Rows.Count; i++)
-            {
 
-                for (int y = 0; y < DISEÑO.Columns.Count; y++) //foreach (DataColumn item in DISEÑO.Columns)
+
+
+                worksheet2.PageSetup.Header.Center.AddText("TIPO DE REPORTE: PRESTAMOS GLOBALES X EMPRESA");
+                worksheet2.PageSetup.Header.Center.AddNewLine();
+                worksheet2.PageSetup.Header.Center.AddText("TOTAL DE TODAS LAS EMPRESAS");
+
+                worksheet2.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet2.PageSetup.Header.Right.AddNewLine();
+                worksheet2.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+                #region Libro Contenido
+                worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet.PageSetup.Margins.Top = 1;
+                worksheet.PageSetup.Margins.Bottom = 1;
+                worksheet.PageSetup.Margins.Left = 1;
+                worksheet.PageSetup.Margins.Right = 1;
+                worksheet.PageSetup.CenterHorizontally = true;
+                worksheet.PageSetup.CenterVertically = true;
+
+                var listaInfo = seleccionReporteList.Select(lis => lis.bd).Distinct().ToList();
+                worksheet.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo)
                 {
-                    string campo;
-                    campo = DISEÑO.Rows[i][y].ToString();
+                    worksheet.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet.PageSetup.Header.Left.AddNewLine();
 
-                    if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                }
+
+
+                worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: PRESTAMOS GLOBALES X EMPRESA");
+
+                worksheet.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet.PageSetup.Header.Right.AddNewLine();
+                worksheet.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+
+
+                //MIS ENCABEZADOS//
+
+                int p = 2;
+                for (int i = 0; i < DISEÑO.Columns.Count; i++)
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+
+                    if (nombrecolumna.Contains("Total"))
                     {
-                        estaEnLineaEspecial = 1;
+                        nombrecolumna = "Total";
                     }
 
-                    if (estaEnLineaEspecial == 1)
+                    worksheet.Cell(3, p).Value = nombrecolumna;
+                    worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(3, p).Style.Font.Bold = true;
+                    worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+
+                //ENCABEZADOS PRINCIPALES
+                int comb = 5;
+                foreach (var empresa in listaAOperar)
+                {
+
+
+                    string nombrecolumna = empresa;
+
+                    if (nombrecolumna.Length > 10)
                     {
+                        nombrecolumna = nombrecolumna.Substring(0, 10);
+                    }
+
+                    worksheet.Cell(2, comb).Value = nombrecolumna;
+                    worksheet.Cell(2, comb).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(2, comb).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(2, comb).Style.Font.Bold = true;
+                    worksheet.Cell(2, comb).Style.Font.FontSize = 16;
+                    worksheet.Cell(2, comb).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(2, comb).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(2, comb).Style.Border.BottomBorderColor = XLColor.Black;
+
+                    
+
+                    comb += 1;
+
+                }
 
 
 
-                        if (y > 2)
+                int fila = 4;
+                int columna = 2;
+                int estaEnLineaEspecial = 0;
+
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    for (int y = 0; y < DISEÑO.Columns.Count; y++)
+                    {
+                        string campo;
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                        {
+                            estaEnLineaEspecial = 1;
+                        }
+
+                        if (estaEnLineaEspecial == 1)
                         {
 
-                            worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
-                            worksheet.Cell(fila, columna).DataType = XLDataType.Number;
-                            worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
 
 
 
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                            worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                            estaEnLineaEspecial = 1;
                         }
                         else
                         {
-                            worksheet.Cell(fila, columna).Value = campo;
-                        }
+                            if (y > 2)
+                            {
 
-                        worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
-                        worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
-                        worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
-                        worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
 
-                        worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
-                        worksheet.Cell(fila, columna).Style.Font.Bold = true;
-                        worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
 
-                        estaEnLineaEspecial = 1;
-                    }
-                    else
-                    {
-                        if (y > 2)
-                        {
 
-                            worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
-                            worksheet.Cell(fila, columna).DataType = XLDataType.Number;
-                            worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
 
                         }
-                        else
-                        {
-                            worksheet.Cell(fila, columna).Value = campo;
-                        }
 
-
-
-                        worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        columna += 1;
 
                     }
 
-                    columna += 1;
+
+
+                    estaEnLineaEspecial = 0;
+                    columna = 2;
+                    fila += 1;
+
 
                 }
-                estaEnLineaEspecial = 0;
+
+
+                worksheet.Columns().AdjustToContents();
+
+
+                //AHORA AGREGAMOS UNA PAGINA PARA EL TOTAL DE LAS EMPRESAS
+
+                //COMO ES UNA NUEVA HOJA VOLVEMOS A CARGAR EL CALENDARIO
+
+                //MIS ENCABEZADOS//
+
+                int p2 = 2;
+                for (int i = 0; i <= 3; i++)//los primeros 3 columnas
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+
+                    if (nombrecolumna.Contains("Total"))
+                    {
+                        nombrecolumna = "Total-Global";
+                    }
+
+                    worksheet2.Cell(3, p2).Value = nombrecolumna;
+                    worksheet2.Cell(3, p2).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet2.Cell(3, p2).Style.Font.FontColor = XLColor.White;
+                    worksheet2.Cell(3, p2).Style.Font.Bold = true;
+                    worksheet2.Cell(3, p2).Style.Font.FontSize = 16;
+                    worksheet2.Cell(3, p2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Border.BottomBorderColor = XLColor.Black;
+                    p2++;
+                }
+                //la fecha en la nueva hoja
+                
+           
+                //la fecha en la nueva hoja
+                int IsColumnTotalL = 0;
+                fila = 4;
                 columna = 2;
-                fila += 1;
-
-
-            }
-            /*luego sumamos todo a partir de la ultima fila*/
-            columna = DISEÑO.Columns.Count + 2;
-            fila = 7;
-            //el Header
-
-            worksheet.Cell(6, columna).Value = "Total";
-            worksheet.Cell(6, columna).Style.Fill.SetBackgroundColor(XLColor.Navy);
-            worksheet.Cell(6, columna).Style.Font.FontColor = XLColor.White;
-            worksheet.Cell(6, columna).Style.Font.Bold = true;
-            worksheet.Cell(6, columna).Style.Font.FontSize = 16;
-            worksheet.Cell(6, columna).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            worksheet.Cell(6, columna).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-            worksheet.Cell(6, columna).Style.Border.BottomBorderColor = XLColor.Black;
-            int IsColumnTotal = 0;
-            for (int i = 0; i < DISEÑO.Rows.Count; i++)
-            {
-                for (int y = 3; y < DISEÑO.Columns.Count; y++) //foreach (DataColumn item in DISEÑO.Columns)
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
                 {
+
                     string campo;
+                    string campo2;
+                    string campo3;
 
 
                     if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
                         DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
                     {
-                        IsColumnTotal = 1;
+                        IsColumnTotalL = 1;
 
                     }
 
-                    campo = DISEÑO.Rows[i][y].ToString();
+                    campo = DISEÑO.Rows[i][0].ToString();
+                    campo2 = DISEÑO.Rows[i][1].ToString();
+                    campo3 = DISEÑO.Rows[i][2].ToString();
 
-                    suma_derecho += decimal.Parse(campo);
 
+
+
+                    if (IsColumnTotalL == 1)
+                    {
+
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotalL = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+                    }
+
+                    IsColumnTotalL = 0;
+                    fila += 1;
 
                 }
 
-                if (IsColumnTotal == 1)
+
+                //
+
+                int IsColumnTotal = 0;
+
+                decimal suma_total = 0;
+                fila = 4;
+                columna = 5;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
                 {
-                    worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
-                    worksheet.Cell(fila, columna).DataType = XLDataType.Number;
-                    worksheet.Cell(fila, columna).Value = suma_derecho;
+                    for (int y = 3; y < DISEÑO.Columns.Count; y ++) //foreach (DataColumn item in DISEÑO.Columns)
+                    {
+                        string campo;
 
-                    worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
-                    worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
-                    worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
-                    worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
 
-                    worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
-                    worksheet.Cell(fila, columna).Style.Font.Bold = true;
-                    worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
-                    IsColumnTotal = 0;
+
+                        if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                            DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                        {
+                            IsColumnTotal = 1;
+
+                        }
+
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        suma_total += decimal.Parse(campo);
+
+
+                    }
+
+                    if (IsColumnTotal == 1)
+                    {
+
+
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_total;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+
+
+                        IsColumnTotal = 0;
+                    }
+                    else
+                    {
+
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_total;
+                    }
+
+
+                    fila += 1;
+
+                    suma_total = 0;
                 }
-                else
-                {
-                    worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
-                    worksheet.Cell(fila, columna).DataType = XLDataType.Number;
-                    worksheet.Cell(fila, columna).Value = suma_derecho;
-                }
 
 
-                fila += 1;
-                suma_derecho = 0;
+
+
+                
+
+
+                worksheet2.Columns().AdjustToContents();
+                workbook.SaveAs("c:\\SEMP2013\\PrestamosGlobalesEmpresa.xlsx");
+
+
+
+                MessageBox.Show("Realizado");
+
+
             }
 
-            worksheet.Columns().AdjustToContents();//auto ajustables
 
-            workbook.SaveAs("c:\\SEMP2013\\excel.xlsx");
+            if (radioSucursal.Checked == true)
+            {
+                var listaAOperar = seleccionReporteList.Select(pil => pil.bd).Distinct().ToList();
+
+                resultadoPrestamos.Clear();
 
 
-            ///*mostramos el resultado*/
-            //dataGridView1.DataSource = DISEÑO;
+
+
+                foreach (var sucursal in listaAOperar)
+                {
+
+                    //Y agregamos nuestra primera informacion de sucursal
+                    distintas += 1;
+                    if (distintas == 1)
+                    {
+                        columna_dato += 3;
+                    }
+                    else
+                    {
+                        columna_dato += 1;
+                    }
+                   
+                    DISEÑO.Columns.Add("Total...-" + distintas, Type.GetType("System.Decimal"));
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.PrestamosXdiaResumen(1, 2018, sucursal, 1,
+                                        fechaInicio, fechaFinal, conn, 1, porSemana, "", "", "", "", 1);
+
+                    //POR SI NO OPERO EN TODO EL PERIODO 
+                    if (resultadoReporte.Rows.Count > 0)
+                    {
+
+                        int i = 0;
+                        foreach (DataRow items in resultadoReporte.Rows)
+                        {
+
+                            string x = "0";
+                            string u = "0";
+                            decimal total = 0;
+
+
+                            x = items[9].ToString();//subtotal
+                           
+
+
+                            u = DISEÑO.Rows[i][columna_dato].ToString();
+
+
+
+
+                            if (string.IsNullOrEmpty(u))
+                            {
+                                u = "0";
+                            }
+                           
+
+
+                            
+
+                            total = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+
+
+                            DISEÑO.Rows[i][columna_dato] = decimal.Parse(total.ToString()).ToString("N2");
+                            
+
+                            DISEÑO.AcceptChanges();
+                            i = i + 1;
+                        }
+
+
+                    }
+
+
+                }
+
+                ///*AHORA EL EXCEL POR CADA SUCURSAL UNA NUEVA HOJA*/
+                var workbook = new XLWorkbook();
+
+                int recorreColumna = 3;
+                int recorre = 5;
+                int fila = 4;
+                int columna = 2;
+                foreach (var sucursal in listaAOperar)
+                {
+
+
+                    #region Funciona
+
+                    string nombrecolumna = "";
+
+                    var worksheet = workbook.Worksheets.Add(sucursal);
+                    #region Libro Contenido
+                    worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                    worksheet.PageSetup.FitToPages(1, 1);
+                    //EN PULGADAS
+                    worksheet.PageSetup.Margins.Top = 1;
+                    worksheet.PageSetup.Margins.Bottom = 1;
+                    worksheet.PageSetup.Margins.Left = 1;
+                    worksheet.PageSetup.Margins.Right = 1;
+                    worksheet.PageSetup.CenterHorizontally = true;
+                    worksheet.PageSetup.CenterVertically = true;
+
+                    var listaInfo = seleccionReporteList.Select(lis => lis.bd).Distinct().ToList();
+                    worksheet.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+                    foreach (var item in listaInfo)
+                    {
+                        worksheet.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                        worksheet.PageSetup.Header.Left.AddNewLine();
+
+                    }
+
+
+                    worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: PRESTAMOS GLOBALES X SUCURSAL");
+
+                    worksheet.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                    worksheet.PageSetup.Header.Right.AddNewLine();
+                    worksheet.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                    worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                    worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                    worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                    #endregion
+
+
+                    //MIS ENCABEZADOS//
+
+                    int p = 2;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+                        
+
+                        if (nombrecolumna.Contains("Total"))
+                        {
+                            nombrecolumna = "Total";
+                        }
+
+                        worksheet.Cell(3, p).Value = nombrecolumna;
+                        worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                        worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                        worksheet.Cell(3, p).Style.Font.Bold = true;
+                        worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                        worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                        p++;
+                    }
+
+
+
+                    //ENCABEZADOS PRINCIPALES
+                    int comb = 5;
+
+
+                    nombrecolumna = sucursal;
+
+                    if (nombrecolumna.Length > 10)
+                    {
+                        nombrecolumna = nombrecolumna.Substring(9, nombrecolumna.Length - 9);
+                    }
+
+                    worksheet.Cell(2, comb).Value = nombrecolumna;
+                    worksheet.Cell(2, comb).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(2, comb).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(2, comb).Style.Font.Bold = true;
+                    worksheet.Cell(2, comb).Style.Font.FontSize = 16;
+                    worksheet.Cell(2, comb).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(2, comb).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(2, comb).Style.Border.BottomBorderColor = XLColor.Black;
+
+                    
+
+                    fila = 4;
+                    columna = 2;
+                    int estaEnLineaEspecial = 0;
+
+                    //PRIMERO EL CALENDARIO//
+                    for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                    {
+
+
+                        for (int y = 0; y < 3; y++)//en columnas incrementa cada 3
+                        {
+                            string campo;
+                            campo = DISEÑO.Rows[i][y].ToString();
+
+                            if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                            {
+                                estaEnLineaEspecial = 1;
+                            }
+
+                            if (estaEnLineaEspecial == 1)
+                            {
+
+                                worksheet.Cell(fila, columna).Value = campo;
+
+
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                                worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+                            }
+                            else
+                            {
+
+                                worksheet.Cell(fila, columna).Value = campo;
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                            }
+
+                            columna += 1;
+
+                        }
+
+
+
+                        estaEnLineaEspecial = 0;
+                        columna = 2;
+                        fila += 1;
+
+
+                    }
+
+                    #endregion
+
+                    //LUEGO LOS RESULTADOS
+                    fila = 4;
+                    columna = 5;
+                    estaEnLineaEspecial = 0;
+
+
+                    //AHORA LOS CALCULOS//
+                    foreach (DataRow datarow in DISEÑO.Rows)
+                    {
+
+                        int desde = recorreColumna;
+                        
+
+                            string campo, campo2;
+
+                            campo = datarow[0].ToString();
+                            if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                            {
+                                estaEnLineaEspecial = 1;
+                            }
+
+                            campo2 = datarow[desde].ToString();
+
+
+
+                            if (estaEnLineaEspecial == 1)
+                            {
+
+
+
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo2);
+
+
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                                worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+                            }
+                            else
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo2);
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                            }
+
+
+                        estaEnLineaEspecial = 0;
+                        
+                        fila++;
+
+
+                    }
+
+
+
+
+                    recorreColumna = recorreColumna + 1;
+                    recorre = recorre + 1;
+
+                    worksheet.Columns().AdjustToContents();
+                }
+
+
+
+
+
+
+                /*luego sumamos todo a partir de la ultima fila*/
+                var worksheet2 = workbook.Worksheets.Add("PrestamosXSucursalResumen");
+
+                #region Libro Resumen
+                worksheet2.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet2.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet2.PageSetup.Margins.Top = 1;
+                worksheet2.PageSetup.Margins.Bottom = 1;
+                worksheet2.PageSetup.Margins.Left = 1;
+                worksheet2.PageSetup.Margins.Right = 1;
+                worksheet2.PageSetup.CenterHorizontally = true;
+                worksheet2.PageSetup.CenterVertically = true;
+
+
+                var listaInfo3 = seleccionReporteList.Select(list => list.bd).Distinct().ToList();
+                worksheet2.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet2.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo3)
+                {
+                    worksheet2.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet2.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+
+
+
+
+
+                worksheet2.PageSetup.Header.Center.AddText("TIPO DE REPORTE: PRESTAMOS GLOBALES X SUCURSAL");
+                worksheet2.PageSetup.Header.Center.AddNewLine();
+                worksheet2.PageSetup.Header.Center.AddText("TOTAL DE TODAS LAS SUCURSALES");
+
+                worksheet2.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet2.PageSetup.Header.Right.AddNewLine();
+                worksheet2.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+
+                //AHORA AGREGAMOS UNA PAGINA PARA EL TOTAL DE LAS EMPRESAS
+
+                //COMO ES UNA NUEVA HOJA VOLVEMOS A CARGAR EL CALENDARIO
+
+                //MIS ENCABEZADOS//
+
+                int p2 = 2;
+                for (int i = 0; i <= 3; i++)//los primeros 3 columnas
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+
+                    if (nombrecolumna.Contains("Total"))
+                    {
+                        nombrecolumna = "Total-Global";
+                    }
+
+                    worksheet2.Cell(3, p2).Value = nombrecolumna;
+                    worksheet2.Cell(3, p2).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet2.Cell(3, p2).Style.Font.FontColor = XLColor.White;
+                    worksheet2.Cell(3, p2).Style.Font.Bold = true;
+                    worksheet2.Cell(3, p2).Style.Font.FontSize = 16;
+                    worksheet2.Cell(3, p2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Border.BottomBorderColor = XLColor.Black;
+                    p2++;
+                }
+                //la fecha en la nueva hoja
+
+
+                //la fecha en la nueva hoja
+                int IsColumnTotalL = 0;
+                fila = 4;
+                columna = 2;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    string campo;
+                    string campo2;
+                    string campo3;
+
+
+                    if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                        DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                    {
+                        IsColumnTotalL = 1;
+
+                    }
+
+                    campo = DISEÑO.Rows[i][0].ToString();
+                    campo2 = DISEÑO.Rows[i][1].ToString();
+                    campo3 = DISEÑO.Rows[i][2].ToString();
+
+
+
+
+                    if (IsColumnTotalL == 1)
+                    {
+
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotalL = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+                    }
+
+                    IsColumnTotalL = 0;
+                    fila += 1;
+
+                }
+
+
+                //
+
+                int IsColumnTotal = 0;
+
+                decimal suma_total = 0;
+                fila = 4;
+                columna = 5;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+                    for (int y = 3; y < DISEÑO.Columns.Count; y++) //foreach (DataColumn item in DISEÑO.Columns)
+                    {
+                        string campo;
+
+
+
+                        if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                            DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                        {
+                            IsColumnTotal = 1;
+
+                        }
+
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        suma_total += decimal.Parse(campo);
+
+
+                    }
+
+                    if (IsColumnTotal == 1)
+                    {
+
+
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_total;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+
+
+                        IsColumnTotal = 0;
+                    }
+                    else
+                    {
+
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_total;
+                    }
+
+
+                    fila += 1;
+
+                    suma_total = 0;
+                }
+
+
+
+                //
+
+                worksheet2.Columns().AdjustToContents();
+
+
+
+
+
+
+
+
+                workbook.SaveAs("c:\\SEMP2013\\PrestamosSucursales.xlsx");
+
+                MessageBox.Show("Realizado");
+
+
+            }
+
+
+
+
         }
 
 
@@ -1634,7 +2667,7 @@ namespace EKReportsemp.WinForms.Views
 
 
         //PARA EMPRESAS Y SUCURSALES SOLAMENTE
-        private void GenricoNotasdePago(DateTime fechaInicio, DateTime fechaFinal)
+        private void GenericoNotasdePago(DateTime fechaInicio, DateTime fechaFinal)
         {
 
             conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
@@ -3182,6 +4215,1562 @@ namespace EKReportsemp.WinForms.Views
         }
 
 
+
+        private void GenericoNotasdeRemision(DateTime fechaInicio, DateTime fechaFinal)
+        {
+
+            conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+
+
+            resumen = new DataTable();
+
+            DataTable DISEÑO = new DataTable();
+            DISEÑO.Columns.Add("Fecha");
+            DISEÑO.Columns.Add("Mes");
+            DISEÑO.Columns.Add("Año");
+
+            string a, b = "";//para unifica
+            string c, d = "";//para las cajas
+            string f, g = "";//para las cajas
+            int distintas = 0;
+            int columna_dato = 0;
+            DateTime inicio;
+            inicio = fechaInicio;
+            // Difference in days, hours, and minutes.
+            TimeSpan ts = fechaFinal - fechaInicio;
+
+
+            // Difference in days.
+            int totalDias = ts.Days;
+
+            //lleno mi tabla con la fecha y el año
+            while (inicio <= fechaFinal)
+            {
+
+                DISEÑO.Rows.Add(string.Format(inicio.ToString("ddd dd {0} MMM {1} yyyy"), "de", "del"),
+                                inicio.Month.ToString(), inicio.Year.ToString());
+
+                int domingo = (int)inicio.DayOfWeek;
+
+                if (domingo == 0)
+                {
+                    DISEÑO.Rows.Add("TOTAL", inicio.Month.ToString(), inicio.Year.ToString());
+
+
+                }
+
+
+                inicio = inicio.AddDays(1);
+
+
+            }
+            DISEÑO.Rows.Add("TOTAL", inicio.Month.ToString(), inicio.Year.ToString());//ULTIMO DIA DEL MES
+            DISEÑO.Rows.Add("TOTAL FINAL", inicio.Month.ToString(), inicio.Year.ToString());//TOTABILIZAR TODO EL MES
+
+
+            /*0 Cero el datatable contenedor de resultado de prestamos y la variable */
+            DataTable resultadoNotasDeRemision = new DataTable();
+
+            /*1 saber que opcion escojio*/
+
+
+            /*acumulado 
+             * TODO(es decir sin importar la empresa se suma TODO
+             * Empresa(los totales de las cajas por empresa)
+             * POR SUCURSAL(LOS TOTALES DE LAS CAJAS POR SUCURSAL
+             
+             pero haciendo enfasis de todo lo que se selecciono*/
+
+            /*1 primero un var que contenga las lista la tabla*/
+            List<seleccionReporte> seleccionReporteList = new List<seleccionReporte>();
+            foreach (DataRow row in selcajas.Rows)
+            {
+                seleccionReporteList.Add(new seleccionReporte
+                {
+
+                    caja = row[0].ToString(),
+                    bd = row[1].ToString(),
+                    nom = row[2].ToString(),
+                    empresa = row[3].ToString(),
+                    marca = row[4].ToString(),
+
+                });
+            }
+
+
+
+            if (radioTodos.Checked == true)
+            {
+                var listaAOperar = seleccionReporteList.Select(pr => pr.bd).Distinct().ToList();
+
+                resultadoNotasDeRemision.Clear();
+
+                DISEÑO.Columns.Add("SubTotal", Type.GetType("System.Decimal"));//.Substring(9)
+                DISEÑO.Columns.Add("Iva", Type.GetType("System.Decimal"));//.Substring(9)
+                DISEÑO.Columns.Add("Total", Type.GetType("System.Decimal"));//.Substring(9)
+
+                /*COMO ES TODO VAMOS A SUMAR TODAS LAS SUCURSALES SIN IMPORTAR LA MARCA*/
+                foreach (var sucursal in listaAOperar)
+                {
+
+
+
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, sucursal, 1,
+                                        fechaInicio, fechaFinal, conn, 1, porSemana, "", (decimal)0.16, (decimal)2.5, "", "1","",0);
+
+                    //AHORA SUMO TODO LO QUE ENCUENTRE POR SUCURSAL-EMPRESA
+                    if (resultadoReporte.Rows.Count > 0)
+                    {
+
+                        int i = 0;
+                        foreach (DataRow items in resultadoReporte.Rows)
+                        {
+
+                            string x = "0", y = "0", z = "0";
+                            string u, v, w = "0";
+                            decimal subtotal, iva, total = 0;
+
+
+                            x = items[9].ToString();//subtotal
+                            y = items[10].ToString();//iva
+                            z = items[11].ToString();//total
+
+
+                            u = DISEÑO.Rows[i][3].ToString();
+                            v = DISEÑO.Rows[i][4].ToString();
+                            w = DISEÑO.Rows[i][5].ToString();
+
+
+
+                            if (string.IsNullOrEmpty(u))
+                            {
+                                u = "0";
+                            }
+                            if (string.IsNullOrEmpty(v))
+                            {
+                                v = "0";
+                            }
+                            if (string.IsNullOrEmpty(w))
+                            {
+                                w = "0";
+                            }
+
+
+                            subtotal = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+                            iva = Convert.ToDecimal(v.ToString()) + Convert.ToDecimal(y.ToString());
+
+                            total = Convert.ToDecimal(w.ToString()) + Convert.ToDecimal(z.ToString());
+
+
+
+                            DISEÑO.Rows[i][3] = decimal.Parse(subtotal.ToString()).ToString("N2");
+                            DISEÑO.Rows[i][4] = decimal.Parse(iva.ToString()).ToString("N2");
+                            DISEÑO.Rows[i][5] = decimal.Parse(total.ToString()).ToString("N2");
+
+                            DISEÑO.AcceptChanges();
+                            i = i + 1;
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+
+                ///*AHORA EL EXCEL*/
+
+                var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("NotasRemisionGlobales");
+                worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet.PageSetup.Margins.Top = 1;
+                worksheet.PageSetup.Margins.Bottom = 1;
+                worksheet.PageSetup.Margins.Left = 1;
+                worksheet.PageSetup.Margins.Right = 1;
+                worksheet.PageSetup.CenterHorizontally = true;
+                worksheet.PageSetup.CenterVertically = true;
+
+
+                var listaInfo = seleccionReporteList.Select(li => li.empresa).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Left.AddText("Empresas Calculadas");
+                worksheet.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo)
+                {
+                    worksheet.PageSetup.Header.Left.AddText(item.Substring(0, 9));
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+                worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: VENTAS GLOBALES");
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText("del " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText(" al " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+
+                var listaInfo2 = seleccionReporteList.Select(li => li.bd).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Right.AddText("Sucursales Calculadas");
+                worksheet.PageSetup.Header.Right.AddNewLine();
+                foreach (var item in listaInfo2)
+                {
+                    worksheet.PageSetup.Header.Right.AddText(item.Substring(9, item.Length - 9));
+                    worksheet.PageSetup.Header.Right.AddNewLine();
+
+                }
+
+
+                //MIS ENCABEZADOS//
+
+                int p = 2;
+                for (int i = 0; i < DISEÑO.Columns.Count; i++)
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+                    if (nombrecolumna.Length > 10)
+                    {
+                        nombrecolumna = nombrecolumna.Substring(0, 10);
+                    }
+
+                    worksheet.Cell(3, p).Value = nombrecolumna;
+                    worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(3, p).Style.Font.Bold = true;
+                    worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+
+
+                int fila = 4;
+                int columna = 2;
+                int estaEnLineaEspecial = 0;
+
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    for (int y = 0; y < DISEÑO.Columns.Count; y++)
+                    {
+                        string campo;
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                        {
+                            estaEnLineaEspecial = 1;
+                        }
+
+                        if (estaEnLineaEspecial == 1)
+                        {
+
+
+
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                            worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                            estaEnLineaEspecial = 1;
+                        }
+                        else
+                        {
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                        }
+
+                        columna += 1;
+
+                    }
+
+
+
+                    estaEnLineaEspecial = 0;
+                    columna = 2;
+                    fila += 1;
+
+
+                }
+
+
+                worksheet.Columns().AdjustToContents();
+
+                workbook.SaveAs("c:\\SEMP2013\\RemisionesGlobales.xlsx");
+
+                MessageBox.Show("Realizado");
+
+
+
+            }
+
+
+            if (radioEmpresa.Checked == true)
+            {
+                var listaAOperar = seleccionReporteList.Select(pi => pi.empresa).Distinct().ToList();
+
+                resultadoNotasDeRemision.Clear();
+
+
+                /*COMO ES TODO VAMOS A SUMAR TODAS LAS SUCURSALES SIN IMPORTAR LA MARCA*/
+                foreach (var empresa in listaAOperar)
+                {
+                    var sucursalesXempresa = buscarLocalidad.listaSucursalesEmpresa(empresa);
+
+                    //Y agregamos nuestra primera informacion de sucursal
+                    distintas += 1;
+                    if (distintas == 1)
+                    {
+                        columna_dato += 3;
+                    }
+                    else
+                    {
+                        columna_dato += 3;
+                    }
+                    DISEÑO.Columns.Add("SubTotal-" + distintas, Type.GetType("System.Decimal"));
+                    DISEÑO.Columns.Add("Iva.....-" + distintas, Type.GetType("System.Decimal"));
+                    DISEÑO.Columns.Add("Total...-" + distintas, Type.GetType("System.Decimal"));
+
+                    foreach (var sucursal in sucursalesXempresa)
+                    {
+
+                        resultadoReporte.Clear();
+
+                        resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, sucursal.sucursalBD, 1,
+                                            fechaInicio, fechaFinal, conn, 1, porSemana, "", (decimal)0.16, (decimal)2.5, "", "1", "", 0);
+
+                        //POR SI NO OPERO EN TODO EL PERIODO 
+                        if (resultadoReporte.Rows.Count > 0)
+                        {
+
+                            int i = 0;
+                            foreach (DataRow items in resultadoReporte.Rows)
+                            {
+
+                                string x = "0", y = "0", z = "0";
+                                string u, v, w = "0";
+                                decimal subtotal, iva, total = 0;
+
+
+                                x = items[9].ToString();//subtotal
+                                y = items[10].ToString();//iva
+                                z = items[11].ToString();//total
+
+
+                                u = DISEÑO.Rows[i][columna_dato].ToString();
+                                v = DISEÑO.Rows[i][columna_dato + 1].ToString();
+                                w = DISEÑO.Rows[i][columna_dato + 2].ToString();
+
+
+
+                                if (string.IsNullOrEmpty(u))
+                                {
+                                    u = "0";
+                                }
+                                if (string.IsNullOrEmpty(v))
+                                {
+                                    v = "0";
+                                }
+                                if (string.IsNullOrEmpty(w))
+                                {
+                                    w = "0";
+                                }
+
+
+                                subtotal = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+                                iva = Convert.ToDecimal(v.ToString()) + Convert.ToDecimal(y.ToString());
+
+                                total = Convert.ToDecimal(w.ToString()) + Convert.ToDecimal(z.ToString());
+
+
+
+                                DISEÑO.Rows[i][columna_dato] = decimal.Parse(subtotal.ToString()).ToString("N2");
+                                DISEÑO.Rows[i][columna_dato + 1] = decimal.Parse(iva.ToString()).ToString("N2");
+                                DISEÑO.Rows[i][columna_dato + 2] = decimal.Parse(total.ToString()).ToString("N2");
+
+                                DISEÑO.AcceptChanges();
+                                i = i + 1;
+                            }
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+                ///*AHORA EL EXCEL*/
+
+                var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("RemisionesXEmpresa");
+                /*luego sumamos todo a partir de la ultima fila*/
+                var worksheet2 = workbook.Worksheets.Add("RemisionesXEmpresaResumen");
+
+                #region Libro Resumen
+                worksheet2.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet2.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet2.PageSetup.Margins.Top = 1;
+                worksheet2.PageSetup.Margins.Bottom = 1;
+                worksheet2.PageSetup.Margins.Left = 1;
+                worksheet2.PageSetup.Margins.Right = 1;
+                worksheet2.PageSetup.CenterHorizontally = true;
+                worksheet2.PageSetup.CenterVertically = true;
+
+
+                var listaInfo3 = seleccionReporteList.Select(list => list.bd).Distinct().ToList();
+                worksheet2.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet2.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo3)
+                {
+                    worksheet2.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet2.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+
+
+
+
+
+                worksheet2.PageSetup.Header.Center.AddText("TIPO DE REPORTE: VENTAS GLOBALES X EMPRESA");
+                worksheet2.PageSetup.Header.Center.AddNewLine();
+                worksheet2.PageSetup.Header.Center.AddText("TOTAL DE TODAS LAS EMPRESAS");
+
+                worksheet2.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet2.PageSetup.Header.Right.AddNewLine();
+                worksheet2.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+                #region Libro Contenido
+                worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet.PageSetup.Margins.Top = 1;
+                worksheet.PageSetup.Margins.Bottom = 1;
+                worksheet.PageSetup.Margins.Left = 1;
+                worksheet.PageSetup.Margins.Right = 1;
+                worksheet.PageSetup.CenterHorizontally = true;
+                worksheet.PageSetup.CenterVertically = true;
+
+                var listaInfo = seleccionReporteList.Select(lis => lis.bd).Distinct().ToList();
+                worksheet.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo)
+                {
+                    worksheet.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+                worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: NOTAS DE PAGO GLOBALES X EMPRESA");
+
+                worksheet.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet.PageSetup.Header.Right.AddNewLine();
+                worksheet.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+
+
+                //MIS ENCABEZADOS//
+
+                int p = 2;
+                for (int i = 0; i < DISEÑO.Columns.Count; i++)
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+                    if (nombrecolumna.Contains("Sub"))
+                    {
+                        nombrecolumna = "Sub";
+                    }
+
+                    if (nombrecolumna.Contains("Iva"))
+                    {
+                        nombrecolumna = "Iva";
+                    }
+
+                    if (nombrecolumna.Contains("Total"))
+                    {
+                        nombrecolumna = "Total";
+                    }
+
+                    worksheet.Cell(3, p).Value = nombrecolumna;
+                    worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(3, p).Style.Font.Bold = true;
+                    worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+
+                //ENCABEZADOS PRINCIPALES
+                int comb = 5;
+                foreach (var empresa in listaAOperar)
+                {
+
+
+                    string nombrecolumna = empresa;
+
+                    if (nombrecolumna.Length > 10)
+                    {
+                        nombrecolumna = nombrecolumna.Substring(0, 10);
+                    }
+
+                    worksheet.Cell(2, comb).Value = nombrecolumna;
+                    worksheet.Cell(2, comb).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(2, comb).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(2, comb).Style.Font.Bold = true;
+                    worksheet.Cell(2, comb).Style.Font.FontSize = 16;
+                    worksheet.Cell(2, comb).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(2, comb).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(2, comb).Style.Border.BottomBorderColor = XLColor.Black;
+
+                    var range = worksheet.Range(worksheet.Cell(2, comb).Address, worksheet.Cell(2, comb + 2).Address);
+                    range.Merge();
+
+                    comb += 3;
+
+                }
+
+
+
+                int fila = 4;
+                int columna = 2;
+                int estaEnLineaEspecial = 0;
+
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    for (int y = 0; y < DISEÑO.Columns.Count; y++)
+                    {
+                        string campo;
+                        campo = DISEÑO.Rows[i][y].ToString();
+
+                        if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                        {
+                            estaEnLineaEspecial = 1;
+                        }
+
+                        if (estaEnLineaEspecial == 1)
+                        {
+
+
+
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                            worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                            estaEnLineaEspecial = 1;
+                        }
+                        else
+                        {
+                            if (y > 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                        }
+
+                        columna += 1;
+
+                    }
+
+
+
+                    estaEnLineaEspecial = 0;
+                    columna = 2;
+                    fila += 1;
+
+
+                }
+
+
+                worksheet.Columns().AdjustToContents();
+
+
+
+
+
+                //AHORA AGREGAMOS UNA PAGINA PARA EL TOTAL DE LAS EMPRESAS
+
+                //COMO ES UNA NUEVA HOJA VOLVEMOS A CARGAR EL CALENDARIO
+
+                //MIS ENCABEZADOS//
+
+                int p2 = 2;
+                for (int i = 0; i < 6; i++)//los primeros 5columnas
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+                    if (nombrecolumna.Contains("Sub"))
+                    {
+                        nombrecolumna = "Sub-Global";
+                    }
+
+                    if (nombrecolumna.Contains("Iva"))
+                    {
+                        nombrecolumna = "Iva-Global";
+                    }
+
+                    if (nombrecolumna.Contains("Total"))
+                    {
+                        nombrecolumna = "Total-Global";
+                    }
+
+                    worksheet2.Cell(3, p2).Value = nombrecolumna;
+                    worksheet2.Cell(3, p2).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet2.Cell(3, p2).Style.Font.FontColor = XLColor.White;
+                    worksheet2.Cell(3, p2).Style.Font.Bold = true;
+                    worksheet2.Cell(3, p2).Style.Font.FontSize = 16;
+                    worksheet2.Cell(3, p2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Border.BottomBorderColor = XLColor.Black;
+                    p2++;
+                }
+                //la fecha en la nueva hoja
+                int IsColumnTotalL = 0;
+                fila = 4;
+                columna = 2;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    string campo;
+                    string campo2;
+                    string campo3;
+
+
+                    if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                        DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                    {
+                        IsColumnTotalL = 1;
+
+                    }
+
+                    campo = DISEÑO.Rows[i][0].ToString();
+                    campo2 = DISEÑO.Rows[i][1].ToString();
+                    campo3 = DISEÑO.Rows[i][2].ToString();
+
+
+
+
+                    if (IsColumnTotalL == 1)
+                    {
+
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotalL = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(fila, columna).Value = campo;
+
+
+                        worksheet2.Cell(fila, columna + 1).Value = campo2;
+
+
+                        worksheet2.Cell(fila, columna + 2).Value = campo3;
+                    }
+
+                    IsColumnTotalL = 0;
+                    fila += 1;
+
+                }
+
+
+                //
+
+                int IsColumnTotal = 0;
+                decimal suma_Subtotal = 0;
+                decimal suma_Iva = 0;
+                decimal suma_total = 0;
+                fila = 4;
+                columna = 5;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+                    for (int y = 3; y < DISEÑO.Columns.Count; y += 3) //foreach (DataColumn item in DISEÑO.Columns)
+                    {
+                        string campo;
+                        string campo2;
+                        string campo3;
+
+
+                        if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                            DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                        {
+                            IsColumnTotal = 1;
+
+                        }
+
+                        campo = DISEÑO.Rows[i][y].ToString();
+                        campo2 = DISEÑO.Rows[i][y + 1].ToString();
+                        campo3 = DISEÑO.Rows[i][y + 2].ToString();
+
+                        suma_Subtotal += decimal.Parse(campo);
+                        suma_Iva += decimal.Parse(campo2);
+                        suma_total += decimal.Parse(campo3);
+
+
+                    }
+
+                    if (IsColumnTotal == 1)
+                    {
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_Subtotal;
+
+                        worksheet2.Cell(fila, columna + 1).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna + 1).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna + 1).Value = suma_Iva;
+
+                        worksheet2.Cell(fila, columna + 2).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna + 2).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna + 2).Value = suma_total;
+
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(fila, columna + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotal = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna).Value = suma_Subtotal;
+
+                        worksheet2.Cell(fila, columna + 1).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna + 1).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna + 1).Value = suma_Iva;
+
+                        worksheet2.Cell(fila, columna + 2).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(fila, columna + 2).DataType = XLDataType.Number;
+                        worksheet2.Cell(fila, columna + 2).Value = suma_total;
+                    }
+
+
+                    fila += 1;
+                    suma_Subtotal = 0;
+                    suma_Iva = 0;
+                    suma_total = 0;
+                }
+
+                ///
+
+
+                worksheet2.Columns().AdjustToContents();
+                workbook.SaveAs("c:\\SEMP2013\\RemisionesGlobalesEmpresa.xlsx");
+
+                MessageBox.Show("Realizado");
+
+
+            }
+
+
+            if (radioSucursal.Checked == true)
+            {
+                var listaAOperar = seleccionReporteList.Select(pil => pil.bd).Distinct().ToList();
+
+                resultadoNotasDeRemision.Clear();
+
+
+
+                foreach (var sucursal in listaAOperar)
+                {
+
+                    //Y agregamos nuestra primera informacion de sucursal
+                    distintas += 1;
+                    if (distintas == 1)
+                    {
+                        columna_dato += 3;
+                    }
+                    else
+                    {
+                        columna_dato += 3;
+                    }
+                    DISEÑO.Columns.Add("SubTotal-" + distintas, Type.GetType("System.Decimal"));
+                    DISEÑO.Columns.Add("Iva.....-" + distintas, Type.GetType("System.Decimal"));
+                    DISEÑO.Columns.Add("Total...-" + distintas, Type.GetType("System.Decimal"));
+
+                    resultadoReporte.Clear();
+
+                    resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, sucursal, 1,
+                                        fechaInicio, fechaFinal, conn, 1, porSemana, "", (decimal)0.16, (decimal)2.5, "", "1", "", 0);
+
+                    //POR SI NO OPERO EN TODO EL PERIODO 
+                    if (resultadoReporte.Rows.Count > 0)
+                    {
+
+                        int i = 0;
+                        foreach (DataRow items in resultadoReporte.Rows)
+                        {
+
+                            string x = "0", y = "0", z = "0";
+                            string u, v, w = "0";
+                            decimal subtotal, iva, total = 0;
+
+
+                            x = items[9].ToString();//subtotal
+                            y = items[10].ToString();//iva
+                            z = items[11].ToString();//total
+
+
+                            u = DISEÑO.Rows[i][columna_dato].ToString();
+                            v = DISEÑO.Rows[i][columna_dato + 1].ToString();
+                            w = DISEÑO.Rows[i][columna_dato + 2].ToString();
+
+
+
+                            if (string.IsNullOrEmpty(u))
+                            {
+                                u = "0";
+                            }
+                            if (string.IsNullOrEmpty(v))
+                            {
+                                v = "0";
+                            }
+                            if (string.IsNullOrEmpty(w))
+                            {
+                                w = "0";
+                            }
+
+
+                            subtotal = Convert.ToDecimal(u.ToString()) + Convert.ToDecimal(x.ToString());
+
+                            iva = Convert.ToDecimal(v.ToString()) + Convert.ToDecimal(y.ToString());
+
+                            total = Convert.ToDecimal(w.ToString()) + Convert.ToDecimal(z.ToString());
+
+
+
+                            DISEÑO.Rows[i][columna_dato] = decimal.Parse(subtotal.ToString()).ToString("N2");
+                            DISEÑO.Rows[i][columna_dato + 1] = decimal.Parse(iva.ToString()).ToString("N2");
+                            DISEÑO.Rows[i][columna_dato + 2] = decimal.Parse(total.ToString()).ToString("N2");
+
+                            DISEÑO.AcceptChanges();
+                            i = i + 1;
+                        }
+
+
+                    }
+
+
+                }
+
+                ///*AHORA EL EXCEL POR CADA SUCURSAL UNA NUEVA HOJA*/
+                var workbook = new XLWorkbook();
+
+                int recorreColumna = 3;
+                int recorre = 5;
+
+                foreach (var sucursal in listaAOperar)
+                {
+
+
+                    #region Funciona
+
+                    string nombrecolumna = "";
+
+                    var worksheet = workbook.Worksheets.Add(sucursal);
+                    #region Libro Contenido
+                    worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                    worksheet.PageSetup.FitToPages(1, 1);
+                    //EN PULGADAS
+                    worksheet.PageSetup.Margins.Top = 1;
+                    worksheet.PageSetup.Margins.Bottom = 1;
+                    worksheet.PageSetup.Margins.Left = 1;
+                    worksheet.PageSetup.Margins.Right = 1;
+                    worksheet.PageSetup.CenterHorizontally = true;
+                    worksheet.PageSetup.CenterVertically = true;
+
+                    var listaInfo = seleccionReporteList.Select(lis => lis.bd).Distinct().ToList();
+                    worksheet.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+                    foreach (var item in listaInfo)
+                    {
+                        worksheet.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                        worksheet.PageSetup.Header.Left.AddNewLine();
+
+                    }
+
+
+                    worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE:VENTAS GLOBALES X SUCURSAL");
+
+                    worksheet.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                    worksheet.PageSetup.Header.Right.AddNewLine();
+                    worksheet.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                    worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                    worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                    worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                    #endregion
+
+
+                    //MIS ENCABEZADOS//
+
+                    int p = 2;
+                    for (int i = 0; i < 6; i++)
+                    {
+                        nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+                        if (nombrecolumna.Contains("Sub"))
+                        {
+                            nombrecolumna = "Sub";
+                        }
+
+                        if (nombrecolumna.Contains("Iva"))
+                        {
+                            nombrecolumna = "Iva";
+                        }
+
+                        if (nombrecolumna.Contains("Total"))
+                        {
+                            nombrecolumna = "Total";
+                        }
+
+                        worksheet.Cell(3, p).Value = nombrecolumna;
+                        worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                        worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                        worksheet.Cell(3, p).Style.Font.Bold = true;
+                        worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                        worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                        worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                        p++;
+                    }
+
+
+
+                    //ENCABEZADOS PRINCIPALES
+                    int comb = 5;
+
+
+                    nombrecolumna = sucursal;
+
+                    if (nombrecolumna.Length > 10)
+                    {
+                        nombrecolumna = nombrecolumna.Substring(9, nombrecolumna.Length - 9);
+                    }
+
+                    worksheet.Cell(2, comb).Value = nombrecolumna;
+                    worksheet.Cell(2, comb).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(2, comb).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(2, comb).Style.Font.Bold = true;
+                    worksheet.Cell(2, comb).Style.Font.FontSize = 16;
+                    worksheet.Cell(2, comb).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(2, comb).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(2, comb).Style.Border.BottomBorderColor = XLColor.Black;
+
+                    var range = worksheet.Range(worksheet.Cell(2, comb).Address, worksheet.Cell(2, comb + 2).Address);
+                    range.Merge();
+
+                    int fila = 4;
+                    int columna = 2;
+                    int estaEnLineaEspecial = 0;
+
+                    //PRIMERO EL CALENDARIO//
+                    for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                    {
+
+
+                        for (int y = 0; y < 3; y++)//en columnas incrementa cada 3
+                        {
+                            string campo;
+                            campo = DISEÑO.Rows[i][y].ToString();
+
+                            if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                            {
+                                estaEnLineaEspecial = 1;
+                            }
+
+                            if (estaEnLineaEspecial == 1)
+                            {
+
+                                worksheet.Cell(fila, columna).Value = campo;
+
+
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                                worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+                            }
+                            else
+                            {
+
+                                worksheet.Cell(fila, columna).Value = campo;
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                            }
+
+                            columna += 1;
+
+                        }
+
+
+
+                        estaEnLineaEspecial = 0;
+                        columna = 2;
+                        fila += 1;
+
+
+                    }
+
+                    #endregion
+
+                    //LUEGO LOS RESULTADOS
+                    fila = 4;
+                    columna = 5;
+                    estaEnLineaEspecial = 0;
+
+
+                    //AHORA LOS CALCULOS//
+                    foreach (DataRow datarow in DISEÑO.Rows)
+                    {
+
+                        int desde = recorreColumna;
+                        while (desde <= recorre)//3-5
+                        {
+
+                            string campo, campo2;
+
+                            campo = datarow[0].ToString();
+                            if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                            {
+                                estaEnLineaEspecial = 1;
+                            }
+
+                            campo2 = datarow[desde].ToString();
+
+
+
+                            if (estaEnLineaEspecial == 1)
+                            {
+
+
+
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo2);
+
+
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                                worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                                worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                                worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+
+                            }
+                            else
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo2);
+                                worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                            }
+
+
+                            desde++;
+
+                            columna++;
+
+                        }
+
+
+
+                        estaEnLineaEspecial = 0;
+                        columna = 5;
+                        fila++;
+
+
+                    }
+
+
+
+
+                    recorreColumna = recorreColumna + 3;
+                    recorre = recorre + 3;
+
+                    worksheet.Columns().AdjustToContents();
+                }
+
+
+
+
+
+
+                /*luego sumamos todo a partir de la ultima fila*/
+                var worksheet2 = workbook.Worksheets.Add("RemisionesXSucursalResumen");
+
+                #region Libro Resumen
+                worksheet2.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet2.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet2.PageSetup.Margins.Top = 1;
+                worksheet2.PageSetup.Margins.Bottom = 1;
+                worksheet2.PageSetup.Margins.Left = 1;
+                worksheet2.PageSetup.Margins.Right = 1;
+                worksheet2.PageSetup.CenterHorizontally = true;
+                worksheet2.PageSetup.CenterVertically = true;
+
+
+                var listaInfo3 = seleccionReporteList.Select(list => list.bd).Distinct().ToList();
+                worksheet2.PageSetup.Header.Left.AddText("Localidades Calculadas");
+                worksheet2.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo3)
+                {
+                    worksheet2.PageSetup.Header.Left.AddText(item.Substring(9, item.Length - 9));
+                    worksheet2.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+
+
+
+
+
+                worksheet2.PageSetup.Header.Center.AddText("TIPO DE REPORTE: VENTAS GLOBALES X SUCURSAL");
+                worksheet2.PageSetup.Header.Center.AddNewLine();
+                worksheet2.PageSetup.Header.Center.AddText("TOTAL DE TODAS LAS SUCURSALES");
+
+                worksheet2.PageSetup.Header.Right.AddText("DEL " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet2.PageSetup.Header.Right.AddNewLine();
+                worksheet2.PageSetup.Header.Right.AddText(" AL " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet2.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+                #endregion
+
+
+                //AHORA AGREGAMOS UNA PAGINA PARA EL TOTAL DE LAS EMPRESAS
+
+                //COMO ES UNA NUEVA HOJA VOLVEMOS A CARGAR EL CALENDARIO
+
+                //MIS ENCABEZADOS//
+
+                int p2 = 2;
+                for (int i = 0; i < 6; i++)//los primeros 5columnas
+                {
+                    string nombrecolumna = DISEÑO.Columns[i].ColumnName;
+
+                    if (nombrecolumna.Contains("Sub"))
+                    {
+                        nombrecolumna = "Sub-Global";
+                    }
+
+                    if (nombrecolumna.Contains("Iva"))
+                    {
+                        nombrecolumna = "Iva-Global";
+                    }
+
+                    if (nombrecolumna.Contains("Total"))
+                    {
+                        nombrecolumna = "Total-Global";
+                    }
+
+                    worksheet2.Cell(3, p2).Value = nombrecolumna;
+                    worksheet2.Cell(3, p2).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet2.Cell(3, p2).Style.Font.FontColor = XLColor.White;
+                    worksheet2.Cell(3, p2).Style.Font.Bold = true;
+                    worksheet2.Cell(3, p2).Style.Font.FontSize = 16;
+                    worksheet2.Cell(3, p2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet2.Cell(3, p2).Style.Border.BottomBorderColor = XLColor.Black;
+                    p2++;
+                }
+                //la fecha en la nueva hoja
+                int IsColumnTotalL = 0;
+                int filaL = 4;
+                int columnaL = 2;
+
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+
+                    string campo;
+                    string campo2;
+                    string campo3;
+
+
+                    if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                        DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                    {
+                        IsColumnTotalL = 1;
+
+                    }
+
+                    campo = DISEÑO.Rows[i][0].ToString();
+                    campo2 = DISEÑO.Rows[i][1].ToString();
+                    campo3 = DISEÑO.Rows[i][2].ToString();
+
+
+
+
+                    if (IsColumnTotalL == 1)
+                    {
+
+                        worksheet2.Cell(filaL, columnaL).Value = campo;
+
+
+                        worksheet2.Cell(filaL, columnaL + 1).Value = campo2;
+
+
+                        worksheet2.Cell(filaL, columnaL + 2).Value = campo3;
+
+                        worksheet2.Cell(filaL, columnaL).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotalL = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(filaL, columnaL).Value = campo;
+
+
+                        worksheet2.Cell(filaL, columnaL + 1).Value = campo2;
+
+
+                        worksheet2.Cell(filaL, columnaL + 2).Value = campo3;
+                    }
+
+                    IsColumnTotalL = 0;
+                    filaL += 1;
+
+                }
+
+
+                //
+
+                int IsColumnTotal = 0;
+                decimal suma_Subtotal = 0;
+                decimal suma_Iva = 0;
+                decimal suma_total = 0;
+                filaL = 4;
+                columnaL = 5;
+                for (int i = 0; i < DISEÑO.Rows.Count; i++)
+                {
+                    for (int y = 3; y < DISEÑO.Columns.Count; y += 3) //foreach (DataColumn item in DISEÑO.Columns)
+                    {
+                        string campo;
+                        string campo2;
+                        string campo3;
+
+
+                        if (DISEÑO.Rows[i][0].ToString() == "TOTAL" ||
+                            DISEÑO.Rows[i][0].ToString() == "TOTAL FINAL")
+                        {
+                            IsColumnTotal = 1;
+
+                        }
+
+                        campo = DISEÑO.Rows[i][y].ToString();
+                        campo2 = DISEÑO.Rows[i][y + 1].ToString();
+                        campo3 = DISEÑO.Rows[i][y + 2].ToString();
+
+                        suma_Subtotal += decimal.Parse(campo);
+                        suma_Iva += decimal.Parse(campo2);
+                        suma_total += decimal.Parse(campo3);
+
+
+                    }
+
+                    if (IsColumnTotal == 1)
+                    {
+                        worksheet2.Cell(filaL, columnaL).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL).Value = suma_Subtotal;
+
+                        worksheet2.Cell(filaL, columnaL + 1).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL + 1).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL + 1).Value = suma_Iva;
+
+                        worksheet2.Cell(filaL, columnaL + 2).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL + 2).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL + 2).Value = suma_total;
+
+                        worksheet2.Cell(filaL, columnaL).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL).Style.Font.FontSize = 16;
+
+                        //
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL + 1).Style.Font.FontSize = 16;
+                        //
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.BottomBorderColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Border.TopBorderColor = XLColor.Black;
+
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.FontColor = XLColor.Black;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.Bold = true;
+                        worksheet2.Cell(filaL, columnaL + 2).Style.Font.FontSize = 16;
+
+
+
+                        IsColumnTotal = 0;
+                    }
+                    else
+                    {
+                        worksheet2.Cell(filaL, columnaL).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL).Value = suma_Subtotal;
+
+                        worksheet2.Cell(filaL, columnaL + 1).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL + 1).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL + 1).Value = suma_Iva;
+
+                        worksheet2.Cell(filaL, columnaL + 2).Style.NumberFormat.Format = "#,##0.00";
+                        worksheet2.Cell(filaL, columnaL + 2).DataType = XLDataType.Number;
+                        worksheet2.Cell(filaL, columnaL + 2).Value = suma_total;
+                    }
+
+
+                    filaL += 1;
+                    suma_Subtotal = 0;
+                    suma_Iva = 0;
+                    suma_total = 0;
+                }
+
+                ///
+
+
+                worksheet2.Columns().AdjustToContents();
+
+
+
+
+
+
+
+
+                workbook.SaveAs("c:\\SEMP2013\\RemisionesGlobalesSucursales.xlsx");
+
+                MessageBox.Show("Realizado");
+
+
+            }
+
+
+
+
+
+
+
+
+        }
+
+
+
+
         private void treeView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
 
@@ -3196,6 +5785,19 @@ namespace EKReportsemp.WinForms.Views
             seleccion = "Prestamo";
             CajasSeleccionadas();
             Verificacion();
+
+        }
+
+        private void btnRemision_Click(object sender, EventArgs e)
+        {
+            seleccion = "Remisiones";
+            CajasSeleccionadas();
+            Verificacion();
+
+        }
+
+        private void checkSemana_CheckedChanged(object sender, EventArgs e)
+        {
 
         }
     }

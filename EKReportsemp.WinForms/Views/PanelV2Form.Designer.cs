@@ -129,6 +129,7 @@
             this.btnRemision.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
             this.btnRemision.TabIndex = 9;
             this.btnRemision.Text = "Reporte de Operaciones de Notas de Remision";
+            this.btnRemision.Click += new System.EventHandler(this.btnRemision_Click);
             // 
             // btnPrestamos
             // 
@@ -348,6 +349,7 @@
             this.checkSemana.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
             this.checkSemana.TabIndex = 4;
             this.checkSemana.Text = "Acumular por Semana";
+            this.checkSemana.CheckedChanged += new System.EventHandler(this.checkSemana_CheckedChanged);
             // 
             // radioEmpresa
             // 

@@ -1225,7 +1225,7 @@ namespace EKReportsemp.WinForms.Views
         private void diseñoDeResultado(DataTable resumen)
         {
            
-            dataGridViewX1.DataSource = resultadosOperacion.diseñoDeResultado(resumen, fechaInicio, fechaFinal);
+           // dataGridViewX1.DataSource = resultadosOperacion.diseñoDeResultado(resumen, fechaInicio, fechaFinal);
 
         }
         #endregion
