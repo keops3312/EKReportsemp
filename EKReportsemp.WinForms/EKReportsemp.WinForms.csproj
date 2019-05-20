@@ -470,6 +470,7 @@
     <Compile Include="Context\vencidos.cs">
       <DependentUpon>Context.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Cajas.cs" />
     <Compile Include="Models\Empresas.cs" />
     <Compile Include="Models\Prestamos.cs" />
     <Compile Include="Models\seleccionReporte.cs" />

@@ -3,18 +3,16 @@
 namespace EKReportsemp.WinForms.Classes
 {
     #region Libraries (librerias) 
+    
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Data.Entity;
     using System.Data.Entity.Core.EntityClient;
     using System.Data.SqlClient;
     using System.IO;
     using System.Linq;
-    using System.Windows.Forms;
     using EDsemp.Classes;
     using EKReportsemp.WinForms.Context;
-    using EKReportsemp.WinForms.Properties;
 
     #endregion
     public class LocationConexion

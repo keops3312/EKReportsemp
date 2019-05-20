@@ -111,6 +111,78 @@ namespace EKReportsemp.WinForms.Views
             result = locationConexion.Scan();
 
         }
+
+        private void ExitApp()
+        {
+            superValidator1.Enabled = false;
+            Application.Exit();
+        }
+
+        private void ChekUser()
+        {
+            //check si esta visible el combo de ser asi guardamos la configuracion para poder trabajar con la sucursal
+
+            if (string.IsNullOrEmpty(txtUser.Text) || string.IsNullOrWhiteSpace(txtUser.Text))
+            {
+
+                MessageBoxEx.EnableGlass = false;
+                MessageBoxEx.Show(
+                    "Ingrese Usuario Por favor", "EK ReportSemp",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                txtUser.Focus();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(txtPassword.Text) || string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+
+                MessageBoxEx.EnableGlass = false;
+                MessageBoxEx.Show(
+                    "Ingrese Contraseña Por favor", "EK ReportSemp",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                txtPassword.Focus();
+                return;
+            }
+
+            //chek usuario y nivel
+
+            nivel = buscarLocalidad.CheckUsuario(txtUser.Text, txtPassword.Text);
+
+
+
+
+            if (!string.IsNullOrEmpty(nivel))
+            {
+                String[] array = new string[7];
+                panelForm = new PanelForm();
+                array = buscarLocalidad.DatosTitular(txtUser.Text, txtPassword.Text);
+                panelForm.usuario = array[0].ToString();
+                panelForm.nivel = array[1].ToString();
+                panelForm.localidad = array[2].ToString();
+                panelForm.sucursal = array[3].ToString();
+                panelForm.logotipo = array[4].ToString();
+
+                this.Hide();
+                panelForm.loginForm = this;
+                panelForm.ShowDialog();
+            }
+            else
+            {
+
+                MessageBoxEx.EnableGlass = false;
+                MessageBoxEx.Show(
+                    "Usuario y/o Contraseña Incorrectos\n" +
+                    "VERIFICAR POR FAVOR", "EK ReportSemp",
+                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                txtUser.Focus();
+                return;
+
+            }
+
+
+
+
+        }
         #endregion
 
         #region Events (Eventos)
@@ -143,72 +215,14 @@ namespace EKReportsemp.WinForms.Views
 
         private void btnAcces_Click(object sender, EventArgs e)
         {
-            //check si esta visible el combo de ser asi guardamos la configuracion para poder trabajar con la sucursal
 
-            if(string.IsNullOrEmpty(txtUser.Text) || string.IsNullOrWhiteSpace(txtUser.Text))
-            {
-
-                MessageBoxEx.EnableGlass = false;
-                MessageBoxEx.Show(
-                    "Ingrese Usuario Por favor", "EK ReportSemp",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtUser.Focus();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(txtPassword.Text) || string.IsNullOrWhiteSpace(txtPassword.Text))
-            {
-
-                MessageBoxEx.EnableGlass = false;
-                MessageBoxEx.Show(
-                    "Ingrese Contraseña Por favor", "EK ReportSemp",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtPassword.Focus();
-                return;
-            }
-
-            //chek usuario y nivel
-           
-            nivel= buscarLocalidad.CheckUsuario(txtUser.Text, txtPassword.Text);
-
-
-
-
-            if (!string.IsNullOrEmpty(nivel))
-            {
-                String[] array = new string[7];
-                panelForm = new PanelForm();
-                array = buscarLocalidad.DatosTitular(txtUser.Text, txtPassword.Text);
-                panelForm.usuario = array[0].ToString();
-                panelForm.nivel = array[1].ToString();
-                panelForm.localidad = array[2].ToString();
-                panelForm.sucursal = array[3].ToString();
-                panelForm.logotipo = array[4].ToString();
-
-             
-                panelForm.ShowDialog();
-            }
-            else {
-
-                MessageBoxEx.EnableGlass = false;
-                MessageBoxEx.Show(
-                    "Usuario y/o Contraseña Incorrectos\n"+
-                    "VERIFICAR POR FAVOR", "EK ReportSemp",
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                txtUser.Focus();
-                return;
-
-            }
-
-
-          
+            ChekUser();
 
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            superValidator1.Enabled = false;
-            Application.Exit();
+            ExitApp();
         }
 
         #endregion

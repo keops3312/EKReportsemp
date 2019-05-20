@@ -39,22 +39,33 @@
             this.btnPrestamos = new DevComponents.DotNetBar.ButtonX();
             this.btnClose = new DevComponents.DotNetBar.ButtonX();
             this.groupPanel1 = new DevComponents.DotNetBar.Controls.GroupPanel();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.circularProgress1 = new DevComponents.DotNetBar.Controls.CircularProgress();
+            this.checkVentas = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.labelX7 = new DevComponents.DotNetBar.LabelX();
+            this.labelX6 = new DevComponents.DotNetBar.LabelX();
+            this.labelX5 = new DevComponents.DotNetBar.LabelX();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.txtPorcentaje = new DevComponents.DotNetBar.Controls.TextBoxX();
             this.labelX2 = new DevComponents.DotNetBar.LabelX();
+            this.txtIva = new DevComponents.DotNetBar.Controls.TextBoxX();
             this.date2 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
             this.date1 = new DevComponents.Editors.DateTimeAdv.DateTimeInput();
-            this.checkSemana = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.radioEmpresa = new System.Windows.Forms.RadioButton();
             this.radioSucursal = new System.Windows.Forms.RadioButton();
             this.radioCaja = new System.Windows.Forms.RadioButton();
             this.radioTodos = new System.Windows.Forms.RadioButton();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.checkSemana = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.groupPanel2 = new DevComponents.DotNetBar.Controls.GroupPanel();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundWorker3 = new System.ComponentModel.BackgroundWorker();
             this.groupPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.date2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.date1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.groupPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +81,6 @@
             this.treeView1.Size = new System.Drawing.Size(357, 603);
             this.treeView1.TabIndex = 5;
             this.treeView1.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterCheck);
-            this.treeView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.treeView1_MouseDoubleClick);
             // 
             // imageList1
             // 
@@ -128,7 +138,7 @@
             this.btnRemision.Size = new System.Drawing.Size(249, 68);
             this.btnRemision.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
             this.btnRemision.TabIndex = 9;
-            this.btnRemision.Text = "Reporte de Operaciones de Notas de Remision";
+            this.btnRemision.Text = "Reporte de Operaciones de Ventas";
             this.btnRemision.Click += new System.EventHandler(this.btnRemision_Click);
             // 
             // btnPrestamos
@@ -167,12 +177,18 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupPanel1.CanvasColor = System.Drawing.SystemColors.Control;
             this.groupPanel1.ColorSchemeStyle = DevComponents.DotNetBar.eDotNetBarStyle.Office2007;
-            this.groupPanel1.Controls.Add(this.dataGridView1);
+            this.groupPanel1.Controls.Add(this.circularProgress1);
+            this.groupPanel1.Controls.Add(this.checkVentas);
+            this.groupPanel1.Controls.Add(this.label1);
+            this.groupPanel1.Controls.Add(this.labelX7);
+            this.groupPanel1.Controls.Add(this.labelX6);
+            this.groupPanel1.Controls.Add(this.labelX5);
             this.groupPanel1.Controls.Add(this.pictureBox1);
+            this.groupPanel1.Controls.Add(this.txtPorcentaje);
             this.groupPanel1.Controls.Add(this.labelX2);
+            this.groupPanel1.Controls.Add(this.txtIva);
             this.groupPanel1.Controls.Add(this.date2);
             this.groupPanel1.Controls.Add(this.date1);
-            this.groupPanel1.Controls.Add(this.checkSemana);
             this.groupPanel1.Controls.Add(this.radioEmpresa);
             this.groupPanel1.Controls.Add(this.radioSucursal);
             this.groupPanel1.Controls.Add(this.radioCaja);
@@ -213,13 +229,78 @@
             this.groupPanel1.TabIndex = 13;
             this.groupPanel1.Text = "Configuracion de Reporte";
             // 
-            // dataGridView1
+            // circularProgress1
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(58, 353);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(368, 130);
-            this.dataGridView1.TabIndex = 9;
+            // 
+            // 
+            // 
+            this.circularProgress1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.circularProgress1.Location = new System.Drawing.Point(133, 166);
+            this.circularProgress1.Name = "circularProgress1";
+            this.circularProgress1.ProgressBarType = DevComponents.DotNetBar.eCircularProgressType.Dot;
+            this.circularProgress1.Size = new System.Drawing.Size(146, 122);
+            this.circularProgress1.Style = DevComponents.DotNetBar.eDotNetBarStyle.OfficeXP;
+            this.circularProgress1.TabIndex = 15;
+            // 
+            // checkVentas
+            // 
+            this.checkVentas.AutoSize = true;
+            this.checkVentas.Location = new System.Drawing.Point(16, 264);
+            this.checkVentas.Name = "checkVentas";
+            this.checkVentas.Size = new System.Drawing.Size(139, 24);
+            this.checkVentas.TabIndex = 37;
+            this.checkVentas.Text = "Notas de Venta";
+            this.checkVentas.UseVisualStyleBackColor = true;
+            this.checkVentas.CheckedChanged += new System.EventHandler(this.checkVentas_CheckedChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(12, 291);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(202, 20);
+            this.label1.TabIndex = 36;
+            this.label1.Text = "Para Notas de Remision";
+            // 
+            // labelX7
+            // 
+            // 
+            // 
+            // 
+            this.labelX7.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.labelX7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelX7.Location = new System.Drawing.Point(17, 327);
+            this.labelX7.Name = "labelX7";
+            this.labelX7.Size = new System.Drawing.Size(421, 19);
+            this.labelX7.TabIndex = 35;
+            this.labelX7.Text = "Ingrese el valor del Iva y el % a tomar del total de las ventas";
+            // 
+            // labelX6
+            // 
+            // 
+            // 
+            // 
+            this.labelX6.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.labelX6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelX6.Location = new System.Drawing.Point(26, 413);
+            this.labelX6.Name = "labelX6";
+            this.labelX6.Size = new System.Drawing.Size(173, 23);
+            this.labelX6.TabIndex = 34;
+            this.labelX6.Text = "Porcentaje de la Venta";
+            // 
+            // labelX5
+            // 
+            // 
+            // 
+            // 
+            this.labelX5.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.labelX5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelX5.Location = new System.Drawing.Point(102, 366);
+            this.labelX5.Name = "labelX5";
+            this.labelX5.Size = new System.Drawing.Size(97, 23);
+            this.labelX5.TabIndex = 33;
+            this.labelX5.Text = "Valor de Iva";
             // 
             // pictureBox1
             // 
@@ -231,6 +312,21 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 8;
             this.pictureBox1.TabStop = false;
+            // 
+            // txtPorcentaje
+            // 
+            // 
+            // 
+            // 
+            this.txtPorcentaje.Border.Class = "TextBoxBorder";
+            this.txtPorcentaje.Border.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.txtPorcentaje.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtPorcentaje.Location = new System.Drawing.Point(219, 410);
+            this.txtPorcentaje.Name = "txtPorcentaje";
+            this.txtPorcentaje.PreventEnterBeep = true;
+            this.txtPorcentaje.Size = new System.Drawing.Size(60, 26);
+            this.txtPorcentaje.TabIndex = 32;
+            this.txtPorcentaje.Text = "2.5";
             // 
             // labelX2
             // 
@@ -244,6 +340,21 @@
             this.labelX2.TabIndex = 7;
             this.labelX2.Text = "Seleccione Rango de periodo";
             this.labelX2.TextAlignment = System.Drawing.StringAlignment.Center;
+            // 
+            // txtIva
+            // 
+            // 
+            // 
+            // 
+            this.txtIva.Border.Class = "TextBoxBorder";
+            this.txtIva.Border.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.txtIva.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtIva.Location = new System.Drawing.Point(219, 363);
+            this.txtIva.Name = "txtIva";
+            this.txtIva.PreventEnterBeep = true;
+            this.txtIva.Size = new System.Drawing.Size(55, 26);
+            this.txtIva.TabIndex = 31;
+            this.txtIva.Text = ".16";
             // 
             // date2
             // 
@@ -337,20 +448,6 @@
             this.date1.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
             this.date1.TabIndex = 5;
             // 
-            // checkSemana
-            // 
-            // 
-            // 
-            // 
-            this.checkSemana.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.checkSemana.Location = new System.Drawing.Point(58, 318);
-            this.checkSemana.Name = "checkSemana";
-            this.checkSemana.Size = new System.Drawing.Size(184, 23);
-            this.checkSemana.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
-            this.checkSemana.TabIndex = 4;
-            this.checkSemana.Text = "Acumular por Semana";
-            this.checkSemana.CheckedChanged += new System.EventHandler(this.checkSemana_CheckedChanged);
-            // 
             // radioEmpresa
             // 
             this.radioEmpresa.AutoSize = true;
@@ -395,6 +492,29 @@
             this.radioTodos.TabStop = true;
             this.radioTodos.Text = "Acumulado Todos";
             this.radioTodos.UseVisualStyleBackColor = true;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(320, 16);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.Size = new System.Drawing.Size(73, 33);
+            this.dataGridView1.TabIndex = 9;
+            this.dataGridView1.Visible = false;
+            // 
+            // checkSemana
+            // 
+            // 
+            // 
+            // 
+            this.checkSemana.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
+            this.checkSemana.Location = new System.Drawing.Point(418, 12);
+            this.checkSemana.Name = "checkSemana";
+            this.checkSemana.Size = new System.Drawing.Size(27, 23);
+            this.checkSemana.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
+            this.checkSemana.TabIndex = 4;
+            this.checkSemana.Text = "Acumular por Semana";
+            this.checkSemana.Visible = false;
             // 
             // groupPanel2
             // 
@@ -442,15 +562,41 @@
             this.groupPanel2.TabIndex = 14;
             this.groupPanel2.Text = "Seleccione Reporte";
             // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.backgroundWorker1.WorkerSupportsCancellation = true;
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
+            // backgroundWorker2
+            // 
+            this.backgroundWorker2.WorkerReportsProgress = true;
+            this.backgroundWorker2.WorkerSupportsCancellation = true;
+            this.backgroundWorker2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker2_DoWork);
+            this.backgroundWorker2.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker2_ProgressChanged);
+            this.backgroundWorker2.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker2_RunWorkerCompleted);
+            // 
+            // backgroundWorker3
+            // 
+            this.backgroundWorker3.WorkerReportsProgress = true;
+            this.backgroundWorker3.WorkerSupportsCancellation = true;
+            this.backgroundWorker3.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker3_DoWork);
+            this.backgroundWorker3.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker3_ProgressChanged);
+            this.backgroundWorker3.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker3_RunWorkerCompleted);
+            // 
             // PanelV2Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1205, 670);
             this.Controls.Add(this.groupPanel2);
+            this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.groupPanel1);
             this.Controls.Add(this.checkBoxX1);
             this.Controls.Add(this.treeView1);
+            this.Controls.Add(this.checkSemana);
             this.DoubleBuffered = true;
             this.EnableGlass = false;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -461,10 +607,10 @@
             this.Load += new System.EventHandler(this.PanelV2Form_Load);
             this.groupPanel1.ResumeLayout(false);
             this.groupPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.date2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.date1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.groupPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -491,5 +637,16 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private DevComponents.DotNetBar.Controls.GroupPanel groupPanel2;
         private System.Windows.Forms.DataGridView dataGridView1;
+        private DevComponents.DotNetBar.LabelX labelX7;
+        private DevComponents.DotNetBar.LabelX labelX6;
+        private DevComponents.DotNetBar.LabelX labelX5;
+        private DevComponents.DotNetBar.Controls.TextBoxX txtPorcentaje;
+        private DevComponents.DotNetBar.Controls.TextBoxX txtIva;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox checkVentas;
+        private DevComponents.DotNetBar.Controls.CircularProgress circularProgress1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker2;
+        private System.ComponentModel.BackgroundWorker backgroundWorker3;
     }
 }

@@ -50,19 +50,32 @@ namespace EKReportsemp.WinForms.Classes
         {
             string result = "";
             result.DefaultIfEmpty();
-            var usuario = db.PRVyusuarios.Where(p => p.USUARIO == user &&
-                                                 p.CONTRASEÑA == password).FirstOrDefault();
-            if (usuario != null)
+
+            var usuario = db.PRVyusuarios.Where(p => p.USUARIO==user &&
+                                                 p.CONTRASEÑA==password).FirstOrDefault();
+
+
+            /*int a = string.CompareOrdinal(usuario.USUARIO, user);devuelve cero si es verdadero*/
+
+
+
+            if (string.CompareOrdinal(usuario.USUARIO, user) == 0
+                && string.CompareOrdinal(usuario.CONTRASEÑA, password)==0)
             {
-                if (usuario.TIPO_USUARIO.Contains("Sistemas") ||
-                   usuario.TIPO_USUARIO.Contains("Junior usuario") ||
-                   usuario.TIPO_USUARIO.Contains("Master usuario"))
+
+                if (usuario != null)
                 {
+                    if (usuario.TIPO_USUARIO.Contains("Sistemas") ||
+                       usuario.TIPO_USUARIO.Contains("Junior usuario") ||
+                       usuario.TIPO_USUARIO.Contains("Master usuario"))
+                    {
 
-                    result = usuario.TIPO_USUARIO;
+                        result = usuario.TIPO_USUARIO;
+                    }
+
                 }
-
             }
+
 
             return result;
 
@@ -309,6 +322,38 @@ namespace EKReportsemp.WinForms.Classes
 
 
 
+        //LISTA SERIE DE CAJAS POR LOCALIDAD
+        public List<Models.Cajas> cajas(string bd)
+        {
+            List<Models.Cajas> cajas = new List<Models.Cajas>();
+
+            string conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+            SqlConnection cn = new SqlConnection(conn);
+
+            SqlDataAdapter cmd = new SqlDataAdapter(" USE " + bd + " " +
+                " select * " +
+                  "  from selCajas", cn);
+            DataTable resultado = new DataTable();
+            cmd.Fill(resultado);
+
+
+            foreach (DataRow item in resultado.Rows)
+            {
+                cajas.Add(new Models.Cajas
+                {
+                    caja = item[2].ToString(),
+                    nomenclatura=item[0].ToString(),
+
+                });
+            }
+
+            return cajas;
+
+        }
+
+
+
+
 
         public List<SucursalesBD> listaSucursalesEmpresa(string empresa)
         {
@@ -344,12 +389,6 @@ namespace EKReportsemp.WinForms.Classes
 
 
         #endregion
-
-
-
-
-
-
 
     }
 }

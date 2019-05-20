@@ -44,11 +44,9 @@
             this.Seleccionar = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Empresa = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.labelX1 = new DevComponents.DotNetBar.LabelX();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.checkSeleccionar = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.btnEmpezar = new DevComponents.DotNetBar.ButtonX();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // styleManager1
@@ -187,7 +185,7 @@
             this.dataGridViewX1.DefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridViewX1.EnableHeadersVisualStyles = false;
             this.dataGridViewX1.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(216)))), ((int)(((byte)(239)))));
-            this.dataGridViewX1.Location = new System.Drawing.Point(143, 208);
+            this.dataGridViewX1.Location = new System.Drawing.Point(22, 208);
             this.dataGridViewX1.Name = "dataGridViewX1";
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
@@ -197,7 +195,7 @@
             dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridViewX1.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.dataGridViewX1.Size = new System.Drawing.Size(511, 196);
+            this.dataGridViewX1.Size = new System.Drawing.Size(658, 196);
             this.dataGridViewX1.TabIndex = 2;
             // 
             // Seleccionar
@@ -228,16 +226,6 @@
             this.labelX1.Text = "Seleccione Empresas a Trabajar";
             this.labelX1.TextAlignment = System.Drawing.StringAlignment.Center;
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(665, 175);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(113, 101);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
-            // 
             // checkSeleccionar
             // 
             // 
@@ -248,7 +236,7 @@
             this.checkSeleccionar.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkSeleccionar.CheckValue = "Y";
             this.checkSeleccionar.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkSeleccionar.Location = new System.Drawing.Point(149, 184);
+            this.checkSeleccionar.Location = new System.Drawing.Point(22, 179);
             this.checkSeleccionar.Name = "checkSeleccionar";
             this.checkSeleccionar.Size = new System.Drawing.Size(211, 23);
             this.checkSeleccionar.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -262,7 +250,7 @@
             this.btnEmpezar.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
             this.btnEmpezar.Image = ((System.Drawing.Image)(resources.GetObject("btnEmpezar.Image")));
             this.btnEmpezar.ImageFixedSize = new System.Drawing.Size(48, 48);
-            this.btnEmpezar.Location = new System.Drawing.Point(675, 354);
+            this.btnEmpezar.Location = new System.Drawing.Point(686, 346);
             this.btnEmpezar.Name = "btnEmpezar";
             this.btnEmpezar.Size = new System.Drawing.Size(68, 58);
             this.btnEmpezar.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -278,7 +266,6 @@
             this.ControlBox = false;
             this.Controls.Add(this.btnEmpezar);
             this.Controls.Add(this.checkSeleccionar);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.labelX1);
             this.Controls.Add(this.dataGridViewX1);
             this.Controls.Add(this.metroTilePanel1);
@@ -293,7 +280,6 @@
             this.Text = "Panel";
             this.Load += new System.EventHandler(this.PanelForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewX1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -309,7 +295,6 @@
         private DevComponents.DotNetBar.Metro.MetroTileItem metroTileItem4;
         private DevComponents.DotNetBar.Controls.DataGridViewX dataGridViewX1;
         private DevComponents.DotNetBar.LabelX labelX1;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private DevComponents.DotNetBar.Controls.CheckBoxX checkSeleccionar;
         private System.Windows.Forms.DataGridViewCheckBoxColumn Seleccionar;
         private System.Windows.Forms.DataGridViewTextBoxColumn Empresa;

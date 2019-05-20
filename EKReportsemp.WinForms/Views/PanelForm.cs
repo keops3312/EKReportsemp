@@ -18,6 +18,7 @@ namespace EKReportsemp.WinForms.Views
         #region Properties (Propiedades)
         private LocationConexion locationConexion;
         private BuscarLocalidad buscarLocalidad;
+        public LoginForm loginForm;
 
         #endregion
 
@@ -36,6 +37,10 @@ namespace EKReportsemp.WinForms.Views
 
         private void metroTileItem4_Click(object sender, EventArgs e)
         {
+            LoginForm login = new LoginForm();
+            login = loginForm;
+            login.Show();
+
             this.Close();
         }
 
@@ -62,13 +67,9 @@ namespace EKReportsemp.WinForms.Views
 
 
             PanelV2Form configRepForm = new PanelV2Form(result);
-            configRepForm.Show();
+            configRepForm.ShowDialog();
 
 
-            //ConfigRepForm configRepForm = new ConfigRepForm(result);
-            //configRepForm.Show();
-
-            
         }
 
         private void checkSeleccionar_CheckedChanged(object sender, EventArgs e)
@@ -115,13 +116,7 @@ namespace EKReportsemp.WinForms.Views
 
             }
 
-            ////marcar las empresas
-
-            //foreach (DataGridViewRow item in dataGridViewX1.Rows)
-            //{
-            //    item.Cells["Seleccionar"].Value = true;
-            //}
-
+           
         }
 
         #endregion
@@ -136,9 +131,6 @@ namespace EKReportsemp.WinForms.Views
         }
 
         #endregion
-
-
-
 
 
     }

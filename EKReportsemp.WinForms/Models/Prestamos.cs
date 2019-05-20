@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace EKReportsemp.WinForms.Models
 {
+    using System;
     public class Prestamos
     {
         public int IdPrestamos { get; set; }
