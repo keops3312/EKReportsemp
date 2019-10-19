@@ -20,6 +20,7 @@ namespace EKReportsemp.WinForms.Classes
         DataTable resultRemisionesPorCaja;
         DataTable resultCajas;
         DataTable baseResult;
+        DataTable TiposAvaluo;
         SqlConnection cnn;
         SqlDataAdapter sqlDataAdapter;
         #endregion
@@ -1296,10 +1297,198 @@ namespace EKReportsemp.WinForms.Classes
         }
         #endregion
 
-     
+
+
+
+
+        /*CLASE CON REPORTE SEGUN EL TIPO DE AVALUO*/
+        #region Notas de Remision por el tipo de avaluo
+      
+
+        //Crea un DataTable de la suma de las operaciones totales de prestamos de cajas por dia de NOTAS DE PAGO
+        public DataTable RemisionesXdiaResumenTipo(string database,
+           string Inicio,
+           string Final, string cnx)
+        {
+            string sql;
+            decimal cantidadMoneda;    
+            decimal cantidadMonedaTotal = 0;
+            decimal TotalFinal=0;
+            int columnaMoneda=2;
+            string tipo;
+          
+
+            ///*CREAR TABLA DE RESULTADO*/
+
+            DataTable result = new DataTable();
+
+            DateTime inicio, fechaFinal;
+            inicio = DateTime.Parse(Inicio);
+            fechaFinal = DateTime.Parse(Final);
+
+            sql = "USE " + database + "  " +
+                          "SELECT definicion from TPavaluos where definicion <>'Todos'";
+            sqlDataAdapter = new SqlDataAdapter(sql, cnx);
+            TiposAvaluo = new DataTable();
+            TiposAvaluo.Clear();
+            sqlDataAdapter.Fill(TiposAvaluo);
+            //resultRemisionesPorCaja = new DataTable();
+            //resultRemisionesPorCaja  =tablaModelo(fechaInicio, fechaFinal, TiposAvaluo);
+
+
+            result = new DataTable("Remisiones");
+            result.Columns.Add("Fecha");
+            result.Columns.Add("Localidad");
+
+            DataColumn dataColumn = new DataColumn();
+            foreach (DataRow item in TiposAvaluo.Rows)
+            {
+              
+                dataColumn = new DataColumn();
+                dataColumn.DataType = System.Type.GetType("System.Decimal");
+                dataColumn.DefaultValue = 0;
+                dataColumn.ColumnName = item[0].ToString();
+
+                result.Columns.Add(dataColumn);
+
+            }
+
+            while (inicio <= fechaFinal)
+            {
+
+                result.Rows.Add(string.Format(inicio.ToString("ddd dd {0} MMM {1} yyyy"), "de", "del"),inicio.ToString("dd-MM-yyyy"));
+
+                int domingo = (int)inicio.DayOfWeek;
+
+                if (domingo == 0)
+                {
+                    result.Rows.Add("TOTAL");
+
+                }
+
+
+                inicio = inicio.AddDays(1);
+
+
+            }
+
+            result.Rows.Add("TOTAL", "0");//ULTIMO DIA DEL MES
+            result.Rows.Add("TOTAL FINAL", "0");//TOTABILIZAR TODO EL MES
+
+            /***/
+         
+            columnaMoneda = 2;
+            foreach (DataRow item in TiposAvaluo.Rows)
+            {
+                
+                tipo = item[0].ToString();
+                TotalFinal = 0;
+
+                foreach (DataRow fila in result.Rows)
+                {
+                    baseResult = new DataTable();
+                    baseResult.Clear();
+
+                    if (fila[0].ToString()=="TOTAL" || fila[0].ToString() == "TOTAL FINAL")
+                    {
+                      
+                    }
+                    else
+                    {
+                        sql = "USE " + database + "  " +
+                        "SELECT Fecha, Sum(importe)" +
+                          "  FROM  Remisiones " +
+                           " WHERE fecha='" + Convert.ToDateTime(fila[1].ToString()).ToString("dd-MM-yyyy") + "'" +
+                           "  and status='VENDIDO' and Tipo_Prenda='" + tipo.Trim() + "' group by  fecha" +
+                                                 "";
+                        sqlDataAdapter = new SqlDataAdapter(sql, cnx);
+                        sqlDataAdapter.Fill(baseResult);
+                    }
+                    
+                   
+                    if (baseResult.Rows.Count > 0)
+                    {
+
+
+                      
+                      cantidadMoneda = Decimal.Parse(baseResult.Rows[0][1].ToString());
+
+
+                     
+                        cantidadMonedaTotal += cantidadMoneda;
+                        TotalFinal = TotalFinal + cantidadMoneda;
+
+                        if (fila[0].ToString() == "TOTAL")
+                        {
+
+                            fila[columnaMoneda] = cantidadMonedaTotal;
+                            result.AcceptChanges();
+
+                         
+                            cantidadMonedaTotal = 0;
+
+                        }
+                        else
+                        {
+
+                            fila[columnaMoneda] = cantidadMoneda;
+                            result.AcceptChanges();
+
+                        }
+
+
+                    }
+                    else
+                    {
+
+                        if (fila[0].ToString() == "TOTAL")
+                        {
+
+                            fila[columnaMoneda] = cantidadMonedaTotal;
+                            result.AcceptChanges();
+
+
+                            cantidadMonedaTotal = 0;
+
+                        }
+                        else
+                        {
+
+                            fila[columnaMoneda] = 0;
+                            result.AcceptChanges();
+
+                        }
+
+                    }
+
+
+                    if (fila[0].ToString() == "TOTAL FINAL")
+                    {
+                        fila[columnaMoneda] = TotalFinal;
+                        result.AcceptChanges();
+                        TotalFinal = 0;
+                    }
+
+                }
+
+               
+
+                columnaMoneda = columnaMoneda + 1;
+
+
+            }
+
+            /***/
+            return result;
+
+        }
         #endregion
 
 
+
+      
+
+        #endregion
 
     }
 }

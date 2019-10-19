@@ -58,9 +58,11 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.checkSemana = new DevComponents.DotNetBar.Controls.CheckBoxX();
             this.groupPanel2 = new DevComponents.DotNetBar.Controls.GroupPanel();
+            this.BtnRemisionesGeneral = new DevComponents.DotNetBar.ButtonX();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.backgroundWorker3 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundWorker4 = new System.ComponentModel.BackgroundWorker();
             this.groupPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.date2)).BeginInit();
@@ -133,7 +135,7 @@
             this.btnRemision.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
             this.btnRemision.Image = ((System.Drawing.Image)(resources.GetObject("btnRemision.Image")));
             this.btnRemision.ImageFixedSize = new System.Drawing.Size(56, 56);
-            this.btnRemision.Location = new System.Drawing.Point(34, 175);
+            this.btnRemision.Location = new System.Drawing.Point(34, 145);
             this.btnRemision.Name = "btnRemision";
             this.btnRemision.Size = new System.Drawing.Size(249, 68);
             this.btnRemision.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -148,7 +150,7 @@
             this.btnPrestamos.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
             this.btnPrestamos.Image = ((System.Drawing.Image)(resources.GetObject("btnPrestamos.Image")));
             this.btnPrestamos.ImageFixedSize = new System.Drawing.Size(56, 56);
-            this.btnPrestamos.Location = new System.Drawing.Point(34, 314);
+            this.btnPrestamos.Location = new System.Drawing.Point(34, 239);
             this.btnPrestamos.Name = "btnPrestamos";
             this.btnPrestamos.Size = new System.Drawing.Size(249, 68);
             this.btnPrestamos.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
@@ -235,7 +237,7 @@
             // 
             // 
             this.circularProgress1.BackgroundStyle.CornerType = DevComponents.DotNetBar.eCornerType.Square;
-            this.circularProgress1.Location = new System.Drawing.Point(133, 166);
+            this.circularProgress1.Location = new System.Drawing.Point(133, 173);
             this.circularProgress1.Name = "circularProgress1";
             this.circularProgress1.ProgressBarType = DevComponents.DotNetBar.eCircularProgressType.Dot;
             this.circularProgress1.Size = new System.Drawing.Size(146, 122);
@@ -496,11 +498,10 @@
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(320, 16);
+            this.dataGridView1.Location = new System.Drawing.Point(451, 11);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(73, 33);
+            this.dataGridView1.Size = new System.Drawing.Size(51, 24);
             this.dataGridView1.TabIndex = 9;
-            this.dataGridView1.Visible = false;
             // 
             // checkSemana
             // 
@@ -522,6 +523,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupPanel2.CanvasColor = System.Drawing.SystemColors.Control;
             this.groupPanel2.ColorSchemeStyle = DevComponents.DotNetBar.eDotNetBarStyle.Office2007;
+            this.groupPanel2.Controls.Add(this.BtnRemisionesGeneral);
             this.groupPanel2.Controls.Add(this.btnInteres);
             this.groupPanel2.Controls.Add(this.btnRemision);
             this.groupPanel2.Controls.Add(this.btnClose);
@@ -562,6 +564,19 @@
             this.groupPanel2.TabIndex = 14;
             this.groupPanel2.Text = "Seleccione Reporte";
             // 
+            // BtnRemisionesGeneral
+            // 
+            this.BtnRemisionesGeneral.AccessibleRole = System.Windows.Forms.AccessibleRole.TitleBar;
+            this.BtnRemisionesGeneral.ColorTable = DevComponents.DotNetBar.eButtonColor.OrangeWithBackground;
+            this.BtnRemisionesGeneral.Image = global::EKReportsemp.WinForms.Properties.Resources.cajaC_fw;
+            this.BtnRemisionesGeneral.Location = new System.Drawing.Point(34, 338);
+            this.BtnRemisionesGeneral.Name = "BtnRemisionesGeneral";
+            this.BtnRemisionesGeneral.Size = new System.Drawing.Size(249, 68);
+            this.BtnRemisionesGeneral.Style = DevComponents.DotNetBar.eDotNetBarStyle.StyleManagerControlled;
+            this.BtnRemisionesGeneral.TabIndex = 14;
+            this.BtnRemisionesGeneral.Text = "Remisiones por Tipo de prenda";
+            this.BtnRemisionesGeneral.Click += new System.EventHandler(this.BtnRemisionesGeneral_Click);
+            // 
             // backgroundWorker1
             // 
             this.backgroundWorker1.WorkerReportsProgress = true;
@@ -585,6 +600,14 @@
             this.backgroundWorker3.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker3_DoWork);
             this.backgroundWorker3.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker3_ProgressChanged);
             this.backgroundWorker3.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker3_RunWorkerCompleted);
+            // 
+            // backgroundWorker4
+            // 
+            this.backgroundWorker4.WorkerReportsProgress = true;
+            this.backgroundWorker4.WorkerSupportsCancellation = true;
+            this.backgroundWorker4.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker4_DoWork);
+            this.backgroundWorker4.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker4_ProgressChanged);
+            this.backgroundWorker4.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker4_RunWorkerCompleted);
             // 
             // PanelV2Form
             // 
@@ -648,5 +671,7 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.ComponentModel.BackgroundWorker backgroundWorker2;
         private System.ComponentModel.BackgroundWorker backgroundWorker3;
+        private DevComponents.DotNetBar.ButtonX BtnRemisionesGeneral;
+        private System.ComponentModel.BackgroundWorker backgroundWorker4;
     }
 }

@@ -12,12 +12,13 @@ namespace EKReportsemp.WinForms.Views
     using ClosedXML.Excel;
     using DevComponents.DotNetBar;
     using EKReportsemp.WinForms.Classes;
-    using EKReportsemp.WinForms.Models; 
+    using EKReportsemp.WinForms.Models;
     #endregion
 
 
     public partial class PanelV2Form : Office2007Form
     {
+
 
         #region Clases (Clases)
         private BuscarLocalidad buscarLocalidad;
@@ -34,6 +35,8 @@ namespace EKReportsemp.WinForms.Views
         private DateTime date2Value;
         private int SeleccionCheck = 0;
         private XLWorkbook MyWorkBook;
+        private string fecha1;
+        private string fecha2;
         #endregion
 
         #region Attributes (atributos)
@@ -233,6 +236,8 @@ namespace EKReportsemp.WinForms.Views
             backgroundWorker2.WorkerSupportsCancellation = true;
             backgroundWorker3.WorkerReportsProgress = true;
             backgroundWorker3.WorkerSupportsCancellation = true;
+            backgroundWorker4.WorkerReportsProgress = true;
+            backgroundWorker4.WorkerSupportsCancellation = true;
 
 
 
@@ -320,7 +325,7 @@ namespace EKReportsemp.WinForms.Views
 
             this.Close();
         }
-       
+
         /*Operaciones intereses*/
         private void btnInteres_Click(object sender, EventArgs e)
         {
@@ -400,10 +405,10 @@ namespace EKReportsemp.WinForms.Views
                     "EKReport SEMP",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Exclamation);
-                
+
 
             }
-          
+
 
         }
 
@@ -416,6 +421,47 @@ namespace EKReportsemp.WinForms.Views
 
         }
 
+        /*Remisiones Globales*/
+        private void BtnRemisionesGeneral_Click(object sender, EventArgs e)
+        {
+            //Comprobar si escogieron un rango de fechas coherente
+            conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
+
+            if (date1.Value > date2.Value)
+            {
+                MessageBoxEx.EnableGlass = false;
+                MessageBoxEx.Show("El rango de fechas no es coherente verifique por favor",
+                    "EKReport SEMP",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+                date1.Focus();
+                return;
+            }
+            CajasSeleccionadas();
+            if (selcajas.Rows.Count == 0)
+            {
+                MessageBoxEx.EnableGlass = false;
+                MessageBoxEx.Show("No has Seleccionado ninguna caja, seleeciona por favor",
+                    "EKReport SEMP",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+                treeView1.Focus();
+                return;
+            }
+
+            fecha1 = date1.Text;
+            fecha2 = date2.Text;
+
+            date1Value = date1.Value;
+            date2Value = date2.Value;
+
+            circularProgress1.Visible = true;
+            circularProgress1.IsRunning = true;
+
+            backgroundWorker4.RunWorkerAsync();
+
+
+        }
 
         #endregion
 
@@ -478,9 +524,9 @@ namespace EKReportsemp.WinForms.Views
 
                 circularProgress1.Visible = true;
                 circularProgress1.IsRunning = true;
-               
+
                 backgroundWorker1.RunWorkerAsync();
-             
+
             }
 
 
@@ -516,7 +562,7 @@ namespace EKReportsemp.WinForms.Views
 
                 backgroundWorker2.RunWorkerAsync();
 
-               
+
             }
 
 
@@ -550,6 +596,8 @@ namespace EKReportsemp.WinForms.Views
 
                 backgroundWorker3.RunWorkerAsync();
             }
+
+
 
         }
 
@@ -601,7 +649,7 @@ namespace EKReportsemp.WinForms.Views
 
             }
 
-          //  dataGridView1.DataSource = selcajas;//Esto essolo para probar despues eliminar
+            //  dataGridView1.DataSource = selcajas;//Esto essolo para probar despues eliminar
 
 
         }
@@ -1468,7 +1516,7 @@ namespace EKReportsemp.WinForms.Views
             }
 
 
-            if (SeleccionCheck==1)
+            if (SeleccionCheck == 1)
             {
 
                 var listaAOperar = seleccionReporteList.Select(pr => pr.bd).Distinct().ToList();
@@ -1703,12 +1751,12 @@ namespace EKReportsemp.WinForms.Views
                 worksheet.Columns().AdjustToContents();
                 MyWorkBook = new XLWorkbook();
                 MyWorkBook = workbook;
-              
 
 
-            
 
-              
+
+
+
 
 
                 #endregion
@@ -2223,8 +2271,8 @@ namespace EKReportsemp.WinForms.Views
                 MyWorkBook = new XLWorkbook();
                 MyWorkBook = workbook;
 
-             
-             
+
+
 
 
             }
@@ -2794,7 +2842,7 @@ namespace EKReportsemp.WinForms.Views
                 resultadoPrestamos.Clear();
 
 
-               
+
 
                 foreach (var sucursal in listaAOperar)
                 {
@@ -3433,7 +3481,7 @@ namespace EKReportsemp.WinForms.Views
 
 
 
-            if (SeleccionCheck == 1 )
+            if (SeleccionCheck == 1)
             {
                 var listaAOperar = seleccionReporteList.Select(pr => pr.bd).Distinct().ToList();
 
@@ -4912,7 +4960,7 @@ namespace EKReportsemp.WinForms.Views
                     resultadoReporte.Clear();
 
                     resultadoReporte = resultadosOperacion.NotasDePagoXdiaResumen(1, 2018, sucursal.bd, 1,
-                                        fechaInicio, fechaFinal, conn, 0, porSemana, "", "", "",sucursal.nom, 1);
+                                        fechaInicio, fechaFinal, conn, 0, porSemana, "", "", "", sucursal.nom, 1);
 
                     //POR SI NO OPERO EN TODO EL PERIODO 
                     if (resultadoReporte.Rows.Count > 0)
@@ -5510,11 +5558,11 @@ namespace EKReportsemp.WinForms.Views
                 MyWorkBook = workbook;
             }
 
-       
 
-    }
 
-        private void GenericoNotasdeRemision(DateTime fechaInicio, DateTime fechaFinal,decimal ivaC, decimal parteC)
+        }
+
+        private void GenericoNotasdeRemision(DateTime fechaInicio, DateTime fechaFinal, decimal ivaC, decimal parteC)
         {
 
             conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
@@ -5597,7 +5645,7 @@ namespace EKReportsemp.WinForms.Views
 
 
 
-            if (SeleccionCheck == 1 )
+            if (SeleccionCheck == 1)
             {
                 var listaAOperar = seleccionReporteList.Select(pr => pr.bd).Distinct().ToList();
 
@@ -5849,7 +5897,7 @@ namespace EKReportsemp.WinForms.Views
             }
 
 
-            if (SeleccionCheck == 2 )
+            if (SeleccionCheck == 2)
             {
                 var listaAOperar = seleccionReporteList.Select(pi => pi.empresa).Distinct().ToList();
 
@@ -7078,7 +7126,7 @@ namespace EKReportsemp.WinForms.Views
                     resultadoReporte.Clear();
 
                     resultadoReporte = resultadosOperacion.RemisionesXdiaResumen(1, 2018, sucursal.bd, 1,
-                                        fechaInicio, fechaFinal, conn, 0, porSemana, "", (decimal)ivaC, (decimal)parteC, "", "1",sucursal.caja, 0);
+                                        fechaInicio, fechaFinal, conn, 0, porSemana, "", (decimal)ivaC, (decimal)parteC, "", "1", sucursal.caja, 0);
 
                     //POR SI NO OPERO EN TODO EL PERIODO 
                     if (resultadoReporte.Rows.Count > 0)
@@ -7691,7 +7739,214 @@ namespace EKReportsemp.WinForms.Views
         }
 
 
+        /*REPORTE POR TIPO SUCURSALES*/
+        private void TotalVentasXtipo(string conn)
+        {
+            conn = ConfigurationManager.ConnectionStrings["SEMP2013_CNX"].ConnectionString;
 
+
+            ///*1 primero un var que contenga las lista la tabla*/
+            List<seleccionReporte> seleccionReporteList = new List<seleccionReporte>();
+            foreach (DataRow row in selcajas.Rows)
+            {
+                seleccionReporteList.Add(new seleccionReporte
+                {
+
+                    caja = row[0].ToString(),
+                    bd = row[1].ToString(),
+                    nom = row[2].ToString(),
+                    empresa = row[3].ToString(),
+                    marca = row[4].ToString(),
+
+                });
+            }
+            var listaAOperar = seleccionReporteList.Select(pil => pil.bd).Distinct().ToList();
+
+            ///*AHORA EL EXCEL POR CADA SUCURSAL UNA NUEVA HOJA*/
+
+
+            DataTable Resultado;
+            MyWorkBook = new XLWorkbook();
+            var workbook = new XLWorkbook();
+
+            foreach (var items in listaAOperar)
+            {
+                Resultado = new DataTable();
+                Resultado = resultadosOperacion.RemisionesXdiaResumenTipo(items,
+                                                        fecha1,
+                                                        fecha2, conn);
+
+                var worksheet = workbook.Worksheets.Add(items);
+
+                #region Hoja
+
+
+
+                worksheet.PageSetup.PageOrientation = XLPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPages(1, 1);
+                //EN PULGADAS
+                worksheet.PageSetup.Margins.Top = 1;
+                worksheet.PageSetup.Margins.Bottom = 1;
+                worksheet.PageSetup.Margins.Left = 1;
+                worksheet.PageSetup.Margins.Right = 1;
+                worksheet.PageSetup.CenterHorizontally = true;
+                worksheet.PageSetup.CenterVertically = true;
+
+
+                var listaInfo = seleccionReporteList.Select(li => li.empresa).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Left.AddText("Empresas Calculadas");
+                worksheet.PageSetup.Header.Left.AddNewLine();
+                foreach (var item in listaInfo)
+                {
+                    worksheet.PageSetup.Header.Left.AddText(item.Substring(0, 9));
+                    worksheet.PageSetup.Header.Left.AddNewLine();
+
+                }
+
+
+                worksheet.PageSetup.Header.Center.AddText("TIPO DE REPORTE: VENTAS X TIPO");
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText("del " + string.Format(date1.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+                worksheet.PageSetup.Header.Center.AddNewLine();
+                worksheet.PageSetup.Header.Center.AddText(" al " + string.Format(date2.Value.ToString("dddd dd {0} MMMM {1} yyyy"), "de", "del"));
+
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.PageNumber, XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(" / ", XLHFOccurrence.AllPages);
+                worksheet.PageSetup.Footer.Center.AddText(XLHFPredefinedText.NumberOfPages, XLHFOccurrence.AllPages);
+
+
+                var listaInfo2 = seleccionReporteList.Select(li => li.bd).Distinct().ToList();
+
+                worksheet.PageSetup.Header.Right.AddText("Sucursal Calculada");
+                worksheet.PageSetup.Header.Right.AddNewLine();
+                worksheet.PageSetup.Header.Right.AddText(items.Substring(9, items.Length - 9));
+                //foreach (var item in listaInfo2)
+                //{
+                //    worksheet.PageSetup.Header.Right.AddText(item.Substring(9, item.Length - 9));
+                //    worksheet.PageSetup.Header.Right.AddNewLine();
+
+                //}
+
+
+                //MIS ENCABEZADOS//
+
+                int p = 2;
+                for (int i = 0; i < Resultado.Columns.Count; i++)
+                {
+                    string nombrecolumna = Resultado.Columns[i].ColumnName;
+
+
+                    worksheet.Cell(3, p).Value = nombrecolumna;
+                    worksheet.Cell(3, p).Style.Fill.SetBackgroundColor(XLColor.Navy);
+                    worksheet.Cell(3, p).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(3, p).Style.Font.Bold = true;
+                    worksheet.Cell(3, p).Style.Font.FontSize = 16;
+                    worksheet.Cell(3, p).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    worksheet.Cell(3, p).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    worksheet.Cell(3, p).Style.Border.BottomBorderColor = XLColor.Black;
+                    p++;
+                }
+
+
+
+                #endregion
+                #region Leyendo DataTable
+                int fila = 4;
+                int columna = 2;
+                int estaEnLineaEspecial = 0;
+
+                for (int i = 0; i < Resultado.Rows.Count; i++)
+                {
+
+                    for (int y = 0; y < Resultado.Columns.Count; y++)
+                    {
+                        string campo;
+                        campo = Resultado.Rows[i][y].ToString();
+
+                        if (campo.Equals("TOTAL") || campo.Equals("TOTAL FINAL"))
+                        {
+                            estaEnLineaEspecial = 1;
+                        }
+
+                        if (estaEnLineaEspecial == 1)
+                        {
+
+
+
+                            if (y >= 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorder = XLBorderStyleValues.Thick;
+                            worksheet.Cell(fila, columna).Style.Border.BottomBorderColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Border.TopBorderColor = XLColor.Black;
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+                            worksheet.Cell(fila, columna).Style.Font.Bold = true;
+                            worksheet.Cell(fila, columna).Style.Font.FontSize = 16;
+
+                            estaEnLineaEspecial = 1;
+                        }
+                        else
+                        {
+                            if (y >= 2)
+                            {
+
+                                worksheet.Cell(fila, columna).Style.NumberFormat.Format = "#,##0.00";
+                                worksheet.Cell(fila, columna).DataType = XLDataType.Number;
+                                worksheet.Cell(fila, columna).Value = decimal.Parse(campo);
+
+                            }
+                            else
+                            {
+                                worksheet.Cell(fila, columna).Value = campo;
+                            }
+
+
+
+                            worksheet.Cell(fila, columna).Style.Font.FontColor = XLColor.Black;
+
+                        }
+
+                        columna += 1;
+
+                    }
+
+
+
+                    estaEnLineaEspecial = 0;
+                    columna = 2;
+                    fila += 1;
+
+
+                }
+                worksheet.Columns().AdjustToContents();
+
+                #endregion
+
+
+            }
+            MyWorkBook = workbook;
+
+
+
+
+
+
+        }
 
         private void GuardarExcel(XLWorkbook workbook, string seleccion)
         {
@@ -7736,19 +7991,19 @@ namespace EKReportsemp.WinForms.Views
         #region BACKGROUNDWORKERS
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-           
+
             GenericoPrestamo(date1Value, date2Value);
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-           
+
             circularProgress1.IsRunning = true;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-           
+
 
 
             circularProgress1.IsRunning = false;
@@ -7796,7 +8051,34 @@ namespace EKReportsemp.WinForms.Views
             GuardarExcel(MyWorkBook, seleccion);
         }
 
+
+        private void backgroundWorker4_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+
+
+            TotalVentasXtipo(conn);
+
+        }
+
+        private void backgroundWorker4_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            circularProgress1.IsRunning = true;
+        }
+
+        private void backgroundWorker4_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            circularProgress1.IsRunning = false;
+            circularProgress1.Visible = false;
+
+            GuardarExcel(MyWorkBook, "Ventas por Tipo");
+        }
+
         #endregion
+
+
+
+      
+
 
 
     }
