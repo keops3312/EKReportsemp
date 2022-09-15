@@ -246,7 +246,13 @@ namespace EKReportsemp.WinForms.Classes
 
 
                         prestamo = decimal.Parse(baseResult.Rows[0][0].ToString());
+
+
+
                         fecha = DateTime.Parse(baseResult.Rows[0][1].ToString());
+                        
+                      
+
                         //cajaLetra = baseResult.Rows[0][2].ToString();
                         //mes
                         //año
@@ -260,6 +266,7 @@ namespace EKReportsemp.WinForms.Classes
 
                         acumuladoXsemana += prestamo;//SUMA X SEMANA 
                         AcumuladoXmes += prestamo;//ACUMULA EL MES TOTAL
+                       
 
                         if (domingo == 0)
                         {
