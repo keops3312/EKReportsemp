@@ -10,6 +10,8 @@ namespace EKReportsemp.WinForms.Classes
     using System.Data.SqlClient;
     using System.IO;
     using EDsemp.Classes;
+    using EKReportsemp.WinForms.Context;
+    using static System.Windows.Forms.VisualStyles.VisualStyleElement;
     #endregion
     public class ResultadosOperacion
     {
@@ -246,7 +248,13 @@ namespace EKReportsemp.WinForms.Classes
 
 
                         prestamo = decimal.Parse(baseResult.Rows[0][0].ToString());
+
+
+
                         fecha = DateTime.Parse(baseResult.Rows[0][1].ToString());
+                        
+                      
+
                         //cajaLetra = baseResult.Rows[0][2].ToString();
                         //mes
                         //año
@@ -260,6 +268,7 @@ namespace EKReportsemp.WinForms.Classes
 
                         acumuladoXsemana += prestamo;//SUMA X SEMANA 
                         AcumuladoXmes += prestamo;//ACUMULA EL MES TOTAL
+                       
 
                         if (domingo == 0)
                         {
@@ -582,6 +591,10 @@ namespace EKReportsemp.WinForms.Classes
                 " and  facturas.status = 'VALIDO' " +
                 " group by facturas.FechaFact ";
 
+
+
+
+
                     sqlDataAdapter = new SqlDataAdapter(sql, cnx);
                     baseResult = new DataTable();
                     baseResult.Clear();
@@ -703,14 +716,29 @@ namespace EKReportsemp.WinForms.Classes
                 while (inicio <= fechaFinal)
                 {
 
+
+
+
                     sql = "USE " + database + "  " +
-                     " SELECT " +
-                " sum(facturas.importefact), sum(facturas.ivafact), sum(facturas.totalfact), " +
-                "facturas.fechafact," + cajaNom + ".caja FROM  facturas " +
-                " INNER JOIN " + cajaNom + " ON facturas.factura = " + cajaNom + ".folio " +
-                " WHERE facturas.FechaFact = '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "' " +
-                " and " + cajaNom + ".concepto like '%DESEMP%'  and facturas.status = 'VALIDO' " +
-                " group by facturas.FechaFact , " + cajaNom + ".Caja";
+                                     " SELECT " +
+                                " sum(facturas.importefact), sum(facturas.ivafact), sum(facturas.totalfact), " +
+                                "facturas.fechafact," + cajaNom + ".caja FROM  facturas " +
+                                " INNER JOIN " + cajaNom + " ON facturas.factura = " + cajaNom + ".folio  and facturas.FechaFact=" +  cajaNom + ".fecha" +
+                                " WHERE facturas.FechaFact = '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "' and facturas.FechaFact = '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "'" +
+                                " and " + cajaNom + ".concepto like '%DESEMP%'  and facturas.status = 'VALIDO' " +
+                                " group by facturas.FechaFact , " + cajaNom + ".Caja";
+
+
+
+
+                    //    sql = "USE " + database + "  " +
+                    //     " SELECT " +
+                    //" sum(facturas.importefact), sum(facturas.ivafact), sum(facturas.totalfact), " +
+                    //"facturas.fechafact," + cajaNom + ".caja FROM  facturas " +
+                    //" INNER JOIN " + cajaNom + " ON facturas.factura = " + cajaNom + ".folio " +
+                    //" WHERE facturas.FechaFact = '" + Convert.ToDateTime(inicio).ToString("dd-MM-yyyy") + "' " +
+                    //" and " + cajaNom + ".concepto like '%DESEMP%'  and facturas.status = 'VALIDO' " +
+                    //" group by facturas.FechaFact , " + cajaNom + ".Caja";
 
 
 
